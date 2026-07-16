@@ -1,0 +1,27 @@
+{
+    "name": "algora",
+    "version": "1.0.0",
+    "description": "An attempt to put everything I wish I had when learning algorithms into one place.",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "npx tsc",
+        "watch": "npx tsc -w"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/diputs-sudo/algora.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "commonjs",
+    "bugs": {
+        "url": "https://github.com/diputs-sudo/algora/issues"
+    },
+    "homepage": "https://github.com/diputs-sudo/algora",
+    "devDependencies": {
+        "serve": "^13.0.4",
+        "typescript": "^5.9.3"
+    }
+}
