@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorting Algorithms</title>
+    <link rel="stylesheet" href="../css/public.css">
+    <link rel="stylesheet" href="../css/algorithm-index.css">
+    <link rel="icon" type="image/png" href="../assets/logo.png">
+</head>
+<body class="sorting-page">
+    <div class="sorting-shell">
+        <div class="top-bar sorting-topbar">
+
+            <button class="back-btn" onclick="history.back()">
+                <svg height="16" width="16" viewBox="0 0 1024 1024">
+                    <path d="M874.690416 495.52477c0 11.2973-9.168824 20.466124-20.466124 20.466124l-604.773963 0 188.083679 188.083679c7.992021 7.992021 7.992021 20.947078 0 28.939099-4.001127 3.990894-9.240455 5.996574-14.46955 5.996574-5.239328 0-10.478655-1.995447-14.479783-5.996574l-223.00912-223.00912c-3.837398-3.837398-5.996574-9.046027-5.996574-14.46955 0-5.433756 2.159176-10.632151 5.996574-14.46955l223.019353-223.029586c7.992021-7.992021 20.957311-7.992021 28.949332 0 7.992021 8.002254 7.992021 20.957311 0 28.949332l-188.073446 188.073446 604.753497 0C865.521592 475.058646 874.690416 484.217237 874.690416 495.52477z"/>
+                </svg>
+                <span>Back</span>
+            </button>
+
+            <a href="https://github.com/diputs-sudo/algora"
+            target="_blank"
+            class="github-btn">
+                <span class="svgContainer">
+                    <svg fill="white" viewBox="0 0 496 512" height="1.4em">
+                        <path d="M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/>
+                    </svg>
+                </span>
+                <span class="BG"></span>
+            </a>
+
+        </div>
+
+        <div class="sorting-layout">
+            <section class="sorting-sidebar">
+                <p class="sorting-kicker">Algorithm index</p>
+                <h1>Sorting algorithms.</h1>
+                <p class="sorting-summary">Explore complexity, behavior, and implementation tradeoffs across classic and advanced sorting strategies.</p>
+
+                <div class="sorting-controls-card">
+                    <div class="sorting-control-group">
+                        <label for="searchInput">Search</label>
+                        <div class="search-container sorting-search">
+                            <input type="text" id="searchInput" placeholder="Find an algorithm" />
+                        </div>
+                    </div>
+
+                    <div class="sorting-control-group">
+                        <label for="sortSelect">Sort by</label>
+                        <div class="sort-container sorting-select-wrap">
+                            <div class="select-wrapper">
+                                <select id="sortSelect">
+                                    <option value="name">Alphabetical</option>
+                                    <option value="speed">Average Speed</option>
+                                    <option value="memory">Memory Usage</option>
+                                    <option value="difficulty">Difficulty</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sorting-control-group">
+                        <label>Quick filters</label>
+                        <div class="sorting-filter-chips" id="sortingFilters">
+                            <button type="button" class="sorting-filter-chip active" data-filter="all">All</button>
+                            <button type="button" class="sorting-filter-chip" data-filter="stable">Stable</button>
+                            <button type="button" class="sorting-filter-chip" data-filter="in-place">In-Place</button>
+                            <button type="button" class="sorting-filter-chip" data-filter="hybrid">Hybrid</button>
+                            <button type="button" class="sorting-filter-chip" data-filter="non-comparative">Non-Comparative</button>
+                        </div>
+                    </div>
+
+                    <p class="sorting-meta">Use the filters to compare practical speed, memory use, and implementation difficulty.</p>
+                </div>
+
+                <section class="sorting-utility-card">
+                    <p class="sorting-kicker">Utility</p>
+                    <h2>Don't know what to choose?</h2>
+                    <p class="sorting-summary">Try comparing algorithms side by side to see which one fits your data and priorities best.</p>
+                    <a href="sorting/compare-sorting.html" class="sorting-roadmap-link sorting-utility-link">
+                        <span>Open Compare Sorting</span>
+                        <small>Shared controls, visualizers, steps, and memory tracking</small>
+                    </a>
+                </section>
+
+                <section class="sorting-roadmap">
+                    <div class="sorting-roadmap-header">
+                        <h2>Learning path</h2>
+                        <span>Suggested</span>
+                    </div>
+
+                    <div class="sorting-roadmap-group">
+                        <h3>Start here</h3>
+                        <a href="sorting/bubble_sort.html" class="sorting-roadmap-link">
+                            <span>Bubble Sort</span>
+                            <small>Educational only</small>
+                        </a>
+                        <a href="sorting/insertion_sort.html" class="sorting-roadmap-link">
+                            <span>Insertion Sort</span>
+                            <small>Great for small or nearly sorted data</small>
+                        </a>
+                        <a href="sorting/selection_sort.html" class="sorting-roadmap-link">
+                            <span>Selection Sort</span>
+                            <small>Useful to study, uncommon in practice</small>
+                        </a>
+                    </div>
+
+                    <div class="sorting-roadmap-group">
+                        <h3>Core patterns</h3>
+                        <a href="sorting/merge_sort.html" class="sorting-roadmap-link">
+                            <span>Merge Sort</span>
+                            <small>Reliable divide-and-conquer baseline</small>
+                        </a>
+                        <a href="sorting/quick_sort.html" class="sorting-roadmap-link">
+                            <span>Quick Sort</span>
+                            <small>One of the most important practical sorts</small>
+                        </a>
+                        <a href="sorting/heap_sort.html" class="sorting-roadmap-link">
+                            <span>Heap Sort</span>
+                            <small>Strong worst-case guarantees, less cache-friendly</small>
+                        </a>
+                    </div>
+
+                    <div class="sorting-roadmap-group">
+                        <h3>Advanced and specialized</h3>
+                        <a href="sorting/bitonic_sort.html" class="sorting-roadmap-link">
+                            <span>Bitonic Sort</span>
+                            <small>Sorting network with a parallel-friendly structure</small>
+                        </a>
+                        <a href="sorting/bucket_sort.html" class="sorting-roadmap-link">
+                            <span>Bucket Sort</span>
+                            <small>Groups values by range before sorting each bucket</small>
+                        </a>
+                        <a href="sorting/counting_sort.html" class="sorting-roadmap-link">
+                            <span>Counting Sort</span>
+                            <small>Worth learning when value ranges are bounded</small>
+                        </a>
+                        <a href="sorting/radix_sort.html" class="sorting-roadmap-link">
+                            <span>Radix Sort</span>
+                            <small>Powerful non-comparative approach</small>
+                        </a>
+                        <a href="sorting/tim_sort.html" class="sorting-roadmap-link">
+                            <span>Tim Sort</span>
+                            <small>Highly practical hybrid used in production</small>
+                        </a>
+                        <a href="sorting/intro_sort.html" class="sorting-roadmap-link">
+                            <span>Intro Sort</span>
+                            <small>Good follow-up once quick sort clicks</small>
+                        </a>
+                    </div>
+                </section>
+            </section>
+
+            <section class="sorting-content">
+                <div class="sorting-content-header">
+                    <p>Available algorithms</p>
+                </div>
+
+                <section class="sorting-grid" id="algorithmGrid">
+
+        <a href="sorting/bitonic_sort.html" class="card sorting-card" data-name="Bitonic Sort" data-speed="2" data-memory="2" data-difficulty="4" data-filters="parallel advanced">
+            <h2>Bitonic Sort</h2>
+            <p class="sorting-card-summary">A network-based sort built for parallel environments rather than everyday general-purpose use.</p>
+            <p class="tags">
+                <span>O(n log² n)</span>
+                <span>Parallel Friendly</span>
+                <span>Memory: O(n)</span>
+                <span>Advanced</span>
+            </p>
+        </a>
+
+        <a href="sorting/bubble_sort.html" class="card sorting-card" data-name="Bubble Sort" data-speed="4" data-memory="1" data-difficulty="1" data-filters="stable in-place classic">
+            <h2>Bubble Sort</h2>
+            <p class="sorting-card-summary">A simple adjacent-swap algorithm that is easy to understand but inefficient on larger inputs.</p>
+            <p class="tags">
+                <span>Best: O(n)</span>
+                <span>Avg: O(n²)</span>
+                <span>Memory: O(1)</span>
+                <span>Stable</span>
+                <span>Classic</span>
+            </p>
+        </a>
+
+        <a href="sorting/bucket_sort.html" class="card sorting-card" data-name="Bucket Sort" data-speed="2" data-memory="3" data-difficulty="3" data-filters="distribution non-comparative">
+            <h2>Bucket Sort</h2>
+            <p class="sorting-card-summary">Groups values into buckets first, then sorts within each bucket for near-linear performance on suitable data.</p>
+            <p class="tags">
+                <span>O(n + k)</span>
+                <span>Distribution Sort</span>
+                <span>Memory: O(n)</span>
+                <span>Non Comparative</span>
+            </p>
+        </a>
+
+        <a href="sorting/counting_sort.html" class="card sorting-card" data-name="Counting Sort" data-speed="1" data-memory="3" data-difficulty="2" data-filters="stable non-comparative">
+            <h2>Counting Sort</h2>
+            <p class="sorting-card-summary">Counts occurrences instead of comparing elements, making it fast when the value range is constrained.</p>
+            <p class="tags">
+                <span>O(n + k)</span>
+                <span>Non Comparative</span>
+                <span>Stable</span>
+                <span>Memory: O(k)</span>
+            </p>
+        </a>
+
+        <a href="sorting/heap_sort.html" class="card sorting-card" data-name="Heap Sort" data-speed="1" data-memory="1" data-difficulty="3" data-filters="in-place">
+            <h2>Heap Sort</h2>
+            <p class="sorting-card-summary">Turns the array into a heap to guarantee O(n log n) time while staying in place.</p>
+            <p class="tags">
+                <span>O(n log n)</span>
+                <span>Memory: O(1)</span>
+                <span>In Place</span>
+                <span>Binary Heap</span>
+            </p>
+        </a>
+
+        <a href="sorting/insertion_sort.html" class="card sorting-card" data-name="Insertion Sort" data-speed="3" data-memory="1" data-difficulty="1" data-filters="stable in-place classic">
+            <h2>Insertion Sort</h2>
+            <p class="sorting-card-summary">Builds the sorted portion one item at a time and works especially well on small or nearly sorted data.</p>
+            <p class="tags">
+                <span>Best: O(n)</span>
+                <span>Avg: O(n²)</span>
+                <span>Memory: O(1)</span>
+                <span>Stable</span>
+            </p>
+        </a>
+
+        <a href="sorting/intro_sort.html" class="card sorting-card" data-name="Intro Sort" data-speed="1" data-memory="2" data-difficulty="4" data-filters="hybrid">
+            <h2>Intro Sort</h2>
+            <p class="sorting-card-summary">Starts as quick sort and switches strategies when needed to avoid worst-case performance.</p>
+            <p class="tags">
+                <span>O(n log n)</span>
+                <span>Hybrid</span>
+                <span>Memory: O(log n)</span>
+                <span>Industry Standard</span>
+            </p>
+        </a>
+
+        <a href="sorting/merge_sort.html" class="card sorting-card" data-name="Merge Sort" data-speed="1" data-memory="3" data-difficulty="2" data-filters="stable divide-and-conquer">
+            <h2>Merge Sort</h2>
+            <p class="sorting-card-summary">Recursively splits the array and merges sorted halves for reliable O(n log n) performance.</p>
+            <p class="tags">
+                <span>O(n log n)</span>
+                <span>Memory: O(n)</span>
+                <span>Stable</span>
+                <span>Divide & Conquer</span>
+            </p>
+        </a>
+
+        <a href="sorting/merge_sort_inplace.html" class="card sorting-card" data-name="Merge Sort In-Place" data-speed="1" data-memory="1" data-difficulty="5" data-filters="in-place advanced">
+            <h2>Merge Sort (In Place)</h2>
+            <p class="sorting-card-summary">A memory-optimized merge variant that trades implementation simplicity for in-place behavior.</p>
+            <p class="tags">
+                <span>O(n log n)</span>
+                <span>Memory: O(1)</span>
+                <span>Advanced</span>
+            </p>
+        </a>
+
+        <a href="sorting/quick_sort.html" class="card sorting-card" data-name="Quick Sort" data-speed="1" data-memory="2" data-difficulty="2" data-filters="in-place divide-and-conquer">
+            <h2>Quick Sort</h2>
+            <p class="sorting-card-summary">Partitions around a pivot and is usually one of the fastest comparison sorts in practice.</p>
+            <p class="tags">
+                <span>O(n log n)</span>
+                <span>Worst: O(n²)</span>
+                <span>Memory: O(log n)</span>
+                <span>Fast in Practice</span>
+            </p>
+        </a>
+
+        <a href="sorting/radix_sort.html" class="card sorting-card" data-name="Radix Sort" data-speed="1" data-memory="3" data-difficulty="3" data-filters="non-comparative">
+            <h2>Radix Sort</h2>
+            <p class="sorting-card-summary">Sorts by individual digits or characters, avoiding direct comparisons entirely.</p>
+            <p class="tags">
+                <span>O(nk)</span>
+                <span>Non Comparative</span>
+                <span>Memory: O(n + k)</span>
+            </p>
+        </a>
+
+        <a href="sorting/selection_sort.html" class="card sorting-card" data-name="Selection Sort" data-speed="4" data-memory="1" data-difficulty="1" data-filters="in-place classic">
+            <h2>Selection Sort</h2>
+            <p class="sorting-card-summary">Repeatedly selects the next smallest value, minimizing writes but not comparisons.</p>
+            <p class="tags">
+                <span>O(n²)</span>
+                <span>Memory: O(1)</span>
+                <span>Classic</span>
+            </p>
+        </a>
+
+        <a href="sorting/shell_sort.html" class="card sorting-card" data-name="Shell Sort" data-speed="2" data-memory="1" data-difficulty="3" data-filters="in-place gap-based">
+            <h2>Shell Sort</h2>
+            <p class="sorting-card-summary">Improves insertion sort by comparing elements across shrinking gaps before the final pass.</p>
+            <p class="tags">
+                <span>O(n log² n)</span>
+                <span>In Place</span>
+                <span>Gap Based</span>
+            </p>
+        </a>
+
+        <a href="sorting/tim_sort.html" class="card sorting-card" data-name="Tim Sort" data-speed="1" data-memory="2" data-difficulty="3" data-filters="stable hybrid">
+            <h2>Tim Sort</h2>
+            <p class="sorting-card-summary">A production-grade hybrid sort that exploits natural runs and uses merge-like behavior underneath.</p>
+            <p class="tags">
+                <span>O(n log n)</span>
+                <span>Hybrid</span>
+                <span>Stable</span>
+                <span>Python Default</span>
+            </p>
+        </a>
+
+        <a href="sorting/tournament_sort.html" class="card sorting-card" data-name="Tournament Sort" data-speed="2" data-memory="3" data-difficulty="4" data-filters="heap-based">
+            <h2>Tournament Sort</h2>
+            <p class="sorting-card-summary">Uses a tournament tree to repeatedly surface the next smallest element from a structured bracket.</p>
+            <p class="tags">
+                <span>O(n log n)</span>
+                <span>Heap Based</span>
+                <span>Memory: O(n)</span>
+            </p>
+        </a>
+
+                </section>
+            </section>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <span>© 2026 diputs-sudo</span>
+            <span class="dot">•</span>
+            <span>Algorithm Showcase</span>
+            <span class="dot">•</span>
+            <a href="https://github.com/diputs-sudo/algora" target="_blank">GitHub</a>
+            <span class="dot">•</span>
+            <a href="https://opensource.org/licenses/MIT" target="_blank">MIT License</a>
+            <span class="dot">•</span>
+            <span>Built with using TypeScript</span>
+        </div>
+    </footer>
+
+    <script type="module" src="../dist/sorting.js"></script>
+
+</body>
+</html>
