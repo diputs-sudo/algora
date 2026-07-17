@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bubble Sort</title>
+    <link rel="stylesheet" href="../../css/public.css">
+    <link rel="stylesheet" href="../../css/algorithm-page.css">
+    <link rel="icon" type="image/png" href="../../assets/logo.png">
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)']],
+                displayMath: [['\\[', '\\]']]
+            }
+        };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+</head>
+<body class="algorithm-page bubble-page">
+    <div class="algorithm-shell">
+    <div class="top-bar algorithm-topbar">
+
+        <button class="back-btn" onclick="history.back()">
+            <svg height="16" width="16" viewBox="0 0 1024 1024">
+                <path d="M874.690416 495.52477c0 11.2973-9.168824 20.466124-20.466124 20.466124l-604.773963 0 188.083679 188.083679c7.992021 7.992021 7.992021 20.947078 0 28.939099-4.001127 3.990894-9.240455 5.996574-14.46955 5.996574-5.239328 0-10.478655-1.995447-14.479783-5.996574l-223.00912-223.00912c-3.837398-3.837398-5.996574-9.046027-5.996574-14.46955 0-5.433756 2.159176-10.632151 5.996574-14.46955l223.019353-223.029586c7.992021-7.992021 20.957311-7.992021 28.949332 0 7.992021 8.002254 7.992021 20.957311 0 28.949332l-188.073446 188.073446 604.753497 0C865.521592 475.058646 874.690416 484.217237 874.690416 495.52477z"/>
+            </svg>
+            <span>Back</span>
+        </button>
+
+        <a href="https://github.com/diputs-sudo/algorithms"
+        target="_blank"
+        class="github-btn">
+            <span class="svgContainer">
+                <svg fill="white" viewBox="0 0 496 512" height="1.4em">
+                    <path d="M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/>
+                </svg>
+            </span>
+            <span class="BG"></span>
+        </a>
+
+    </div>
+
+    <main class="algorithm-page-layout">
+        <section class="algorithm-hero">
+            <div class="algorithm-hero-copy">
+                <p class="algorithm-kicker">Sorting algorithm</p>
+                <h1>Bubble Sort</h1>
+                <p class="algorithm-subtitle">A simple comparison-based algorithm for learning how adjacent swaps gradually move values into place.</p>
+                <p class="intro-text">
+                    Bubble Sort repeatedly steps through the list, compares adjacent elements,
+                    and swaps them when they are out of order. It is one of the clearest ways
+                    to understand sorting mechanics, but it becomes impractical on larger inputs.
+                </p>
+
+                <button id="learnMoreBtn" class="primary-btn">
+                    Learn More ↓
+                </button>
+                <a href="compare-sorting.html" class="primary-btn">
+                    Compare Side by Side
+                </a>
+            </div>
+
+            <aside class="algorithm-hero-panel">
+                <h2>Quick Facts</h2>
+                <div class="tags">
+                    <span>Best: \(O(n)\)</span>
+                    <span>Average: \(O(n^2)\)</span>
+                    <span>Worst: \(O(n^2)\)</span>
+                    <span>Memory: \(O(1)\)</span>
+                    <span>Stable</span>
+                    <span>In-Place</span>
+                    <span>Classic</span>
+                </div>
+
+                <div class="algorithm-hero-notes">
+                    <div>
+                        <strong>Best for</strong>
+                        <p>Learning the basics of sorting, swaps, and algorithm tracing.</p>
+                    </div>
+                    <div>
+                        <strong>Not ideal for</strong>
+                        <p>Real-world performance work or larger datasets.</p>
+                    </div>
+                </div>
+            </aside>
+        </section>
+
+        <div class="algorithm-main-grid">
+            <section class="visualizer algorithm-panel algorithm-panel-feature">
+                <div class="algorithm-section-header">
+                    <div>
+                        <p class="algorithm-section-kicker">Interactive</p>
+                        <h2>Visualizer</h2>
+                    </div>
+                </div>
+
+            <div class="controls-panel">
+                <input type="text" id="datasetInput" placeholder="e.g. 5,3,8,1,2" />
+                <button id="generateBtn">Generate Random</button>
+
+                <div class="playback-controls">
+                    <button id="playBtn">Play</button>
+                    <button id="pauseBtn">Pause</button>
+                    <button id="stepBtn">Step</button>
+                    <button id="resetBtn">Reset</button>
+                </div>
+
+                <div class="speed-control">
+                    <label for="speedRange">Speed</label>
+                    <input type="range" id="speedRange" min="50" max="1000" value="300" />
+                </div>
+            </div>
+
+            <div id="graphContainer" class="visualizer-container"></div>
+            </section>
+
+            <aside class="algorithm-sidebar">
+                <section class="algorithm-panel algorithm-panel-muted">
+                    <h2>Step by Step</h2>
+                    <ul class="algorithm-list">
+                        <li>Start at the beginning of the array.</li>
+                        <li>Compare each adjacent pair.</li>
+                        <li>Swap if the left value is greater than the right.</li>
+                        <li>Repeat until a full pass makes no swaps.</li>
+                    </ul>
+                </section>
+
+                <section class="algorithm-panel algorithm-panel-muted">
+                    <h2>Usage Notes</h2>
+                    <div class="algorithm-note-block">
+                        <strong>Use it when</strong>
+                        <p>You want a simple visual demonstration or are working with a tiny dataset.</p>
+                    </div>
+                    <div class="algorithm-note-block">
+                        <strong>Avoid it when</strong>
+                        <p>Performance matters or the input size is large enough for O(n²) cost to dominate.</p>
+                    </div>
+                </section>
+            </aside>
+        </div>
+
+        <section class="more-info algorithm-section-light" id="detailsSection">
+            <div class="algorithm-section-header">
+                <div>
+                    <p class="algorithm-section-kicker">Explanation</p>
+                    <h2>How Bubble Sort Works</h2>
+                </div>
+            </div>
+
+                <div class="algorithm-explanation-grid">
+                    <div class="algorithm-explanation-copy">
+                        <p>
+                            Bubble Sort compares each pair of adjacent elements and swaps them
+                            if they are in the wrong order. After each pass, the largest
+                        unsorted element "bubbles" to its correct position at the end.
+                    </p>
+                        <p>
+                            In the average and worst cases, the algorithm performs on the order of
+                            \( \frac{n(n - 1)}{2} \) comparisons, which is why its running time grows
+                            as \( O(n^2) \).
+                        </p>
+
+                        <section class="algorithm-flow-card">
+                            <h3>Visual Walkthrough</h3>
+                            <div class="algorithm-flow">
+                                <article class="algorithm-flow-step">
+                                    <span class="algorithm-flow-index">01</span>
+                                    <h4>Compare Neighbors</h4>
+                                    <p>Look at two adjacent values at a time.</p>
+                                    <div class="algorithm-mini-row">
+                                        <span>5</span><span>3</span><span>8</span><span>1</span>
+                                    </div>
+                                </article>
+
+                                <article class="algorithm-flow-step">
+                                    <span class="algorithm-flow-index">02</span>
+                                    <h4>Swap If Needed</h4>
+                                    <p>If the left value is bigger, swap the pair.</p>
+                                    <div class="algorithm-mini-row">
+                                        <span>3</span><span>5</span><span>8</span><span>1</span>
+                                    </div>
+                                </article>
+
+                                <article class="algorithm-flow-step">
+                                    <span class="algorithm-flow-index">03</span>
+                                    <h4>Largest Bubbles Right</h4>
+                                    <p>After one pass, the largest unsorted value reaches the end.</p>
+                                    <div class="algorithm-mini-row">
+                                        <span>3</span><span>5</span><span>1</span><span>8</span>
+                                    </div>
+                                </article>
+
+                                <article class="algorithm-flow-step">
+                                    <span class="algorithm-flow-index">04</span>
+                                    <h4>Repeat Passes</h4>
+                                    <p>Keep making passes until no swaps are needed.</p>
+                                    <div class="algorithm-mini-row">
+                                        <span>1</span><span>3</span><span>5</span><span>8</span>
+                                    </div>
+                                </article>
+                            </div>
+                        </section>
+
+                        <section class="algorithm-example-card">
+                            <h3>What Makes It Different</h3>
+                            <p>
+                                Bubble Sort only works with adjacent swaps. That makes it easy to follow visually, but it also means small values
+                                can take many steps to move all the way to the front.
+                            </p>
+                        </section>
+
+                        <div class="more-info-content" id="standardMoreInfo"></div>
+                    </div>
+
+                <div class="algorithm-pseudocode-card">
+                    <h3>Pseudocode</h3>
+                    <pre class="code-display pseudo-code">
+<span class="keyword">for</span> i <span class="keyword">from</span> 0 <span class="keyword">to</span> n - 1:
+    <span class="keyword">for</span> j <span class="keyword">from</span> 0 <span class="keyword">to</span> n - i - 1:
+        <span class="keyword">if</span> array[j] &gt; array[j + 1]:
+            <span class="function">swap</span>(array[j], array[j + 1])
+                    </pre>
+                </div>
+            </div>
+        </section>
+
+        <section class="code-section algorithm-panel algorithm-panel-code" id="standardCodeSection">
+            <div class="algorithm-section-header">
+                <div>
+                    <p class="algorithm-section-kicker">Source code</p>
+                    <h2>Standard Implementation</h2>
+                </div>
+            </div>
+
+            <div class="code-header">
+                <div class="language-switcher">
+                    <button class="lang-btn active" data-lang="python">Python</button>
+                    <button class="lang-btn" data-lang="cpp">C++</button>
+                    <button class="lang-btn" data-lang="java">Java</button>
+                    <button class="lang-btn" data-lang="c">C</button>
+                </div>
+
+                <button class="copy copy-code-btn">
+                    <span data-text-end="Copied!" data-text-initial="Copy to clipboard" class="tooltip"></span>
+                    <span>
+                        <svg xml:space="preserve" viewBox="0 0 6.35 6.35" height="20" width="20" class="clipboard" xmlns="http://www.w3.org/2000/svg">
+                            <g>
+                                <path fill="currentColor" d="M2.43.265c-.3 0-.548.236-.573.53h-.328a.74.74 0 0 0-.735.734v3.822a.74.74 0 0 0 .735.734H4.82a.74.74 0 0 0 .735-.734V1.529a.74.74 0 0 0-.735-.735h-.328a.58.58 0 0 0-.573-.53zm0 .529h1.49c.032 0 .049.017.049.049v.431c0 .032-.017.049-.049.049H2.43c-.032 0-.05-.017-.05-.049V.843c0-.032.018-.05.05-.05zm-.901.53h.328c.026.292.274.528.573.528h1.49a.58.58 0 0 0 .573-.529h.328a.2.2 0 0 1 .206.206v3.822a.2.2 0 0 1-.206.205H1.53a.2.2 0 0 1-.206-.205V1.529a.2.2 0 0 1 .206-.206z"></path>
+                            </g>
+                        </svg>
+
+                        <svg viewBox="0 0 24 24" height="18" width="18" class="checkmark" xmlns="http://www.w3.org/2000/svg">
+                            <g>
+                                <path fill="currentColor" d="M9.707 19.121a.997.997 0 0 1-1.414 0l-5.646-5.647a1.5 1.5 0 0 1 0-2.121l.707-.707a1.5 1.5 0 0 1 2.121 0L9 14.171l9.525-9.525a1.5 1.5 0 0 1 2.121 0l.707.707a1.5 1.5 0 0 1 0 2.121z"></path>
+                            </g>
+                        </svg>
+                    </span>
+                </button>
+            </div>
+
+            <pre class="code-display code-display-target">
+        Select a language to view implementation.
+            </pre>
+        </section>
+    </main>
+    </div>
+    
+    <footer class="site-footer">
+        <div class="footer-content">
+            <span>© 2026 diputs-sudo</span>
+            <span class="dot">•</span>
+            <span>Algorithm Showcase</span>
+            <span class="dot">•</span>
+            <a href="https://github.com/diputs-sudo/algora" target="_blank">GitHub</a>
+            <span class="dot">•</span>
+            <span>Built with HTML, CSS, TypeScript</span>
+            <span class="dot">•</span>
+            <span>Interactive learning tools</span>
+        </div>
+    </footer>
+
+    <script type="module" src="../../dist/sorting/bubble_sort.js"></script>
+</body>
+</html>
