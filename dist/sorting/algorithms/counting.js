@@ -70,7 +70,7 @@ export function* countingSort(input) {
         output[outputIndex] = value;
         filled[outputIndex] = true;
         count[value] -= 1;
-        const display = arr.map((currentValue, filledIndex) => filled[filledIndex] ? output[filledIndex] : currentValue);
+        const display = arr.map((currentValue, fillIndex) => filled[fillIndex] ? output[fillIndex] : currentValue);
         yield {
             type: "swap",
             indices: [outputIndex],
