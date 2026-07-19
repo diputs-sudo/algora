@@ -55,11 +55,11 @@ document.addEventListener("DOMContentLoaded", () => {
             .map(value => Number(value.trim()))
             .filter(value => Number.isInteger(value) && value >= 0);
 
-            if (values.length > 0) {
-                dataset = values;
-                datasetInput.value = dataset.join(",");
-                reset();
-            }
+        if (values.length > 0) {
+            dataset = values;
+            datasetInput.value = dataset.join(",");
+            reset();
+        }
     });
 
     playBtn.addEventListener("click", () => controller.play());
@@ -73,9 +73,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function reset() {
         generator = countingSort(dataset);
-        controller.reset(generator,dataset);
+        controller.reset(generator, dataset);
         graph.render(dataset, [], "default", createInitialWorkspace(dataset));
-    } 
+    }
 
     function generateRandomArray(size: number): number[] {
         return generateUniqueRandomArray(size, 0, 40);
