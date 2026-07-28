@@ -34,8 +34,6 @@ select {
   font: inherit;
 }
 
-/* Shared primitives */
-
 .disabled {
   opacity: 0.5;
   pointer-events: none;
@@ -459,8 +457,6 @@ select {
   transform: rotate(20deg);
 }
 
-/* Code blocks */
-
 .code-section {
   margin-top: 40px;
 }
@@ -676,8 +672,6 @@ select {
 .copy-code-btn {
   flex-shrink: 0;
 }
-
-/* Footer */
 
 .site-footer {
   padding: 14px 10px;
