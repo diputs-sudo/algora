@@ -1,0 +1,73 @@
+import { createExponentialSearchInitialStep, exponentialSearch } from "./algorithms/exponential.js";
+import { SearchController } from "./visualizer/searchController.js";
+import { SearchVisualizer } from "./visualizer/searchVisualizer.js";
+import { initCodeLoader } from "../ui/codeLoader.js";
+import { initLearnMore } from "../ui/navigation.js";
+function parseDataset(value) {
+    return value
+        .split(",")
+        .map(item => Number(item.trim()))
+        .filter(item => !Number.isNaN(item))
+        .sort((a, b) => a - b);
+}
+function generateSortedArray(size) {
+    const values = new Set();
+    while (values.size < size) {
+        values.add(Math.floor(Math.random() * 120) + 1);
+    }
+    return Array.from(values).sort((a, b) => a - b);
+}
+document.addEventListener("DOMContentLoaded", () => {
+    initLearnMore();
+    initCodeLoader("array_search", "exponential_search", {
+        rootSelector: "#standardCodeSection",
+        defaultLanguage: "python",
+        moreInfoSelector: "#standardMoreInfo"
+    });
+    const visualizer = new SearchVisualizer("searchGraphContainer");
+    let dataset = [2, 5, 9, 14, 23, 31, 38, 47, 59, 66, 78, 91, 105, 117];
+    let target = 78;
+    let controller = new SearchController(exponentialSearch(dataset, target), visualizer);
+    visualizer.render(createExponentialSearchInitialStep(dataset, target));
+    const datasetInput = document.getElementById("datasetInput");
+    const targetInput = document.getElementById("targetInput");
+    const generateBtn = document.getElementById("generateBtn");
+    const playBtn = document.getElementById("playBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const stepBtn = document.getElementById("stepBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const speedRange = document.getElementById("speedRange");
+    datasetInput.value = dataset.join(",");
+    targetInput.value = String(target);
+    function reset() {
+        dataset = parseDataset(datasetInput.value);
+        target = Number(targetInput.value);
+        if (dataset.length === 0) {
+            dataset = [2, 5, 9, 14, 23, 31, 38, 47, 59, 66, 78, 91, 105, 117];
+        }
+        if (Number.isNaN(target)) {
+            target = dataset[Math.floor(dataset.length / 2)];
+            targetInput.value = String(target);
+        }
+        datasetInput.value = dataset.join(",");
+        controller.reset(exponentialSearch(dataset, target), createExponentialSearchInitialStep(dataset, target));
+        controller.setSpeed(Number(speedRange.value));
+    }
+    generateBtn.addEventListener("click", () => {
+        dataset = generateSortedArray(14);
+        target = dataset[Math.floor(dataset.length * 0.7)];
+        datasetInput.value = dataset.join(",");
+        targetInput.value = String(target);
+        reset();
+    });
+    datasetInput.addEventListener("change", reset);
+    targetInput.addEventListener("change", reset);
+    playBtn.addEventListener("click", () => controller.play());
+    pauseBtn.addEventListener("click", () => controller.pause());
+    stepBtn.addEventListener("click", () => controller.step());
+    resetBtn.addEventListener("click", reset);
+    speedRange.addEventListener("input", () => {
+        controller.setSpeed(Number(speedRange.value));
+    });
+    controller.setSpeed(Number(speedRange.value));
+});
