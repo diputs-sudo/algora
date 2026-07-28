@@ -1,0 +1,30 @@
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+static int binary_search_range(const vector<int>& arr, int target, int left, int right) {
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+
+        if (arr[mid] == target) return mid;
+        if (arr[mid] < target) left = mid + 1;
+        else right = mid - 1;
+    }
+
+    return -1;
+}
+
+int exponential_search(const vector<int>& arr, int target) {
+    int n = static_cast<int>(arr.size());
+
+    if (n == 0) return -1;
+    if (arr[0] == target) return 0;
+
+    int bound = 1;
+    while (bound < n && arr[bound] <= target) {
+        bound *= 2;
+    }
+
+    return binary_search_range(arr, target, bound / 2, min(bound, n - 1));
+}
