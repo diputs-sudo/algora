@@ -32,6 +32,10 @@ document.addEventListener("DOMContentLoaded", () => {
         defaultLanguage: "python",
         moreInfoSelector: "#standardMoreInfo"
     });
+    initCodeLoader("sorting", "bitonic_sort_production", {
+        rootSelector: "#productionCodeSection",
+        defaultLanguage: "python"
+    });
     const graph = new Graph("graphContainer");
     let dataset = generateRandomArray(16);
     let generator = bitonicSort(dataset);
