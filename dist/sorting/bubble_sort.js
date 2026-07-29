@@ -11,6 +11,10 @@ document.addEventListener("DOMContentLoaded", () => {
         defaultLanguage: "python",
         moreInfoSelector: "#standardMoreInfo"
     });
+    initCodeLoader("sorting", "bubble_sort_production", {
+        rootSelector: "#productionCodeSection",
+        defaultLanguage: "python"
+    });
     const graph = new Graph("graphContainer");
     let dataset = generateRandomArray(20);
     let generator = bubbleSort(dataset);
