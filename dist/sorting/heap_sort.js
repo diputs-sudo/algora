@@ -21,6 +21,10 @@ document.addEventListener("DOMContentLoaded", () => {
         defaultLanguage: "python",
         moreInfoSelector: "#standardMoreInfo"
     });
+    initCodeLoader("sorting", "heap_sort_production", {
+        rootSelector: "#productionCodeSection",
+        defaultLanguage: "python"
+    });
     const graph = new Graph("graphContainer");
     let dataset = generateRandomArray(20);
     let generator = heapSort(dataset);
