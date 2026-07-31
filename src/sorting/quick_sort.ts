@@ -25,6 +25,10 @@ document.addEventListener("DOMContentLoaded", () => {
         defaultLanguage: "python",
         moreInfoSelector: "#standardMoreInfo"
     });
+    initCodeLoader("sorting", "quick_sort_production", {
+        rootSelector: "#productionCodeSection",
+        defaultLanguage: "python"
+    });
 
     const graph = new Graph("graphContainer");
 
