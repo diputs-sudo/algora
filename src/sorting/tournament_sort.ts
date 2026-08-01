@@ -26,6 +26,10 @@ document.addEventListener("DOMContentLoaded", () => {
         defaultLanguage: "python",
         moreInfoSelector: "#standardMoreInfo"
     });
+    initCodeLoader("sorting", "tournament_sort_production", {
+        rootSelector: "#productionCodeSection",
+        defaultLanguage: "python"
+    });
 
     const graph = new Graph("graphContainer");
 
