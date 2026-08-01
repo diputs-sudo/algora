@@ -38,6 +38,10 @@ document.addEventListener("DOMContentLoaded", () => {
         defaultLanguage: "python",
         moreInfoSelector: "#standardMoreInfo"
     });
+    initCodeLoader("array_search", "bitonic_array_search_production", {
+        rootSelector: "#productionCodeSection",
+        defaultLanguage: "python"
+    });
     const visualizer = new SearchVisualizer("searchGraphContainer");
     let dataset = [...fallbackDataset];
     let target = 64;
