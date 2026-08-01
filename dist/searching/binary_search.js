@@ -24,6 +24,10 @@ document.addEventListener("DOMContentLoaded", () => {
         defaultLanguage: "python",
         moreInfoSelector: "#standardMoreInfo"
     });
+    initCodeLoader("array_search", "binary_search_production", {
+        rootSelector: "#productionCodeSection",
+        defaultLanguage: "python"
+    });
     const visualizer = new SearchVisualizer("searchGraphContainer");
     let dataset = [3, 8, 12, 19, 24, 31, 36, 42, 55, 63, 77, 88];
     let target = 42;
