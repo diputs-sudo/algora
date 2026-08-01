@@ -29,6 +29,10 @@ document.addEventListener("DOMContentLoaded", () => {
         defaultLanguage: "python",
         moreInfoSelector: "#standardMoreInfo"
     });
+    initCodeLoader("array_search", "exponential_search_production", {
+        rootSelector: "#productionCodeSection",
+        defaultLanguage: "python"
+    });
 
     const visualizer = new SearchVisualizer("searchGraphContainer");
 
