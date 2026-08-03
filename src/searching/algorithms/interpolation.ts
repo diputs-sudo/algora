@@ -1,4 +1,4 @@
-import { SearchStep, SearchWorkspaceState } from "../visualizer/types.js";
+import { InterpolationInsight, SearchStep, SearchWorkspaceState } from "../visualizer/types.js";
 
 function getProbePosition(array: number[], target: number, low: number, high: number): number {
     if (array[high] === array[low]) {
@@ -9,6 +9,40 @@ function getProbePosition(array: number[], target: number, low: number, high: nu
     const position = low + Math.floor(ratio * (high - low));
 
     return Math.max(low, Math.min(high, position));
+}
+
+function createInterpolationInsight(
+    array: number[],
+    target: number,
+    low: number,
+    probe: number,
+    high: number,
+    note?: string
+): InterpolationInsight | undefined {
+    if (low < 0 || high >= array.length || low > high) {
+        return undefined;
+    }
+
+    const lowValue = array[low];
+    const highValue = array[high];
+    const valueSpan = highValue - lowValue;
+    const valueDistance = target - lowValue;
+    const ratio = valueSpan === 0 ? 0 : valueDistance / valueSpan;
+
+    return {
+        low,
+        probe,
+        high,
+        lowValue,
+        probeValue: array[probe],
+        highValue,
+        target,
+        valueDistance,
+        valueSpan,
+        ratio,
+        indexSpan: high - low,
+        note
+    };
 }
 
 function createWorkspace(
@@ -61,6 +95,16 @@ export function createInterpolationSearchInitialStep(array: number[], target: nu
             { label: "high", index: high }
         ] : [],
         message: "Start with the full sorted range. Estimate the probe position from the target's value.",
+        interpolation: array.length > 0 && probe !== undefined
+            ? createInterpolationInsight(
+                array,
+                target,
+                0,
+                probe,
+                high,
+                "Start with the full value range. The estimate maps the target's value position to the same position in the indices."
+            )
+            : undefined,
         workspace: array.length > 0 && probe !== undefined
             ? createWorkspace(
                 array,
@@ -102,6 +146,14 @@ export function* interpolationSearch(array: number[], target: number): Generator
             ],
             probes,
             message: `Estimate index ${probe}: compare ${value} with target ${target}.`,
+            interpolation: createInterpolationInsight(
+                array,
+                target,
+                low,
+                probe,
+                high,
+                `Try index ${probe}. The probe value is ${value}.`
+            ),
             workspace: createWorkspace(
                 array,
                 target,
@@ -124,6 +176,14 @@ export function* interpolationSearch(array: number[], target: number): Generator
                 probes,
                 resultIndex: probe,
                 message: `Target ${target} found at estimated index ${probe}.`,
+                interpolation: createInterpolationInsight(
+                    array,
+                    target,
+                    low,
+                    probe,
+                    high,
+                    "The estimate landed on the target."
+                ),
                 workspace: createWorkspace(
                     array,
                     target,
@@ -138,6 +198,7 @@ export function* interpolationSearch(array: number[], target: number): Generator
 
         if (value < target) {
             low = probe + 1;
+            const nextProbe = low <= high ? getProbePosition(array, target, low, high) : undefined;
 
             yield {
                 type: "narrow",
@@ -145,13 +206,23 @@ export function* interpolationSearch(array: number[], target: number): Generator
                 target,
                 low,
                 high,
-                mid: low <= high ? getProbePosition(array, target, low, high) : undefined,
+                mid: nextProbe,
                 pointers: low <= high ? [
                     { label: "low", index: low },
                     { label: "high", index: high }
                 ] : [],
                 probes,
                 message: `${value} is smaller than ${target}, so continue to the right of index ${probe}.`,
+                interpolation: nextProbe !== undefined
+                    ? createInterpolationInsight(
+                        array,
+                        target,
+                        low,
+                        nextProbe,
+                        high,
+                        `The probe was too low. Discard everything before index ${low}. New value range: ${array[low]} -> ${array[high]}.`
+                    )
+                    : undefined,
                 workspace: {
                     title: "Interpolation Search Workspace",
                     detail: `Move low to ${low}; values at or before index ${probe} cannot contain ${target}.`,
@@ -163,6 +234,7 @@ export function* interpolationSearch(array: number[], target: number): Generator
             };
         } else {
             high = probe - 1;
+            const nextProbe = low <= high ? getProbePosition(array, target, low, high) : undefined;
 
             yield {
                 type: "narrow",
@@ -170,13 +242,23 @@ export function* interpolationSearch(array: number[], target: number): Generator
                 target,
                 low,
                 high,
-                mid: low <= high ? getProbePosition(array, target, low, high) : undefined,
+                mid: nextProbe,
                 pointers: low <= high ? [
                     { label: "low", index: low },
                     { label: "high", index: high }
                 ] : [],
                 probes,
                 message: `${value} is larger than ${target}, so continue to the left of index ${probe}.`,
+                interpolation: nextProbe !== undefined
+                    ? createInterpolationInsight(
+                        array,
+                        target,
+                        low,
+                        nextProbe,
+                        high,
+                        `The probe was too high. Discard everything after index ${high}. New value range: ${array[low]} -> ${array[high]}.`
+                    )
+                    : undefined,
                 workspace: {
                     title: "Interpolation Search Workspace",
                     detail: `Move high to ${high}; values at or after index ${probe} cannot contain ${target}.`,
