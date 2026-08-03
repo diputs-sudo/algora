@@ -19,6 +19,23 @@ function generateEvenlySpacedArray(size: number): number[] {
     return Array.from({ length: size }, (_, index) => start + index * step);
 }
 
+function generateSkewedArray(size: number): number[] {
+    const start = Math.floor(Math.random() * 4) + 2;
+    let current = start;
+
+    return Array.from({ length: size }, (_, index) => {
+        if (index === 0) {
+            return current;
+        }
+
+        const gap = index < Math.floor(size * 0.65)
+            ? Math.floor(Math.random() * 3) + 1
+            : Math.floor(Math.random() * 18) + 9;
+        current += gap;
+        return current;
+    });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     initLearnMore();
     initCodeLoader("array_search", "interpolation_search", {
@@ -47,6 +64,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const stepBtn = document.getElementById("stepBtn") as HTMLButtonElement;
     const resetBtn = document.getElementById("resetBtn") as HTMLButtonElement;
     const speedRange = document.getElementById("speedRange") as HTMLInputElement;
+    const modeButtons = Array.from(
+        document.querySelectorAll(".interpolation-mode-btn")
+    ) as HTMLButtonElement[];
+
+    let distributionMode: "even" | "skewed" = "even";
 
     datasetInput.value = dataset.join(",");
     targetInput.value = String(target);
@@ -73,11 +95,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     generateBtn.addEventListener("click", () => {
-        dataset = generateEvenlySpacedArray(13);
+        dataset = distributionMode === "even"
+            ? generateEvenlySpacedArray(13)
+            : generateSkewedArray(13);
         target = dataset[Math.floor(dataset.length * 0.7)];
         datasetInput.value = dataset.join(",");
         targetInput.value = String(target);
         reset();
+    });
+
+    modeButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            distributionMode = button.dataset.mode === "skewed" ? "skewed" : "even";
+            modeButtons.forEach(item => {
+                item.classList.toggle("active", item === button);
+            });
+            generateBtn.textContent = distributionMode === "even"
+                ? "Generate Even Array"
+                : "Generate Skewed Array";
+            generateBtn.click();
+        });
     });
 
     datasetInput.addEventListener("change", reset);
