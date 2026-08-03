@@ -106,6 +106,14 @@
                             <button id="generateBtn">Generate Even Array</button>
                         </div>
 
+                        <div class="interpolation-mode-row" aria-label="Distribution modes">
+                            <span>Distribution</span>
+                            <div class="interpolation-mode-buttons">
+                                <button type="button" class="interpolation-mode-btn active" data-mode="even">Even</button>
+                                <button type="button" class="interpolation-mode-btn" data-mode="skewed">Skewed</button>
+                            </div>
+                        </div>
+
                         <div class="search-playback-row">
                             <div class="playback-controls">
                                 <button id="playBtn">Play</button>
@@ -144,7 +152,7 @@
                         </div>
                         <div class="algorithm-note-block">
                             <strong>Page-specific logic</strong>
-                            <p>The workspace shows the value-based estimate instead of always picking the middle index.</p>
+                            <p>The lab maps the target's value ratio onto the index range, then shows how even and skewed data change the probe.</p>
                         </div>
                     </section>
                 </aside>
