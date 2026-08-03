@@ -17,6 +17,21 @@ export interface SearchPointer {
     index: number;
 }
 
+export interface InterpolationInsight {
+    low: number;
+    probe: number;
+    high: number;
+    lowValue: number;
+    probeValue: number;
+    highValue: number; 
+    target: number;
+    valueDistance: number; 
+    valueSpan: number;
+    ratio: number;
+    indexSpan: number;
+    note?: string;
+}
+
 export interface SearchStep {
     type: SearchStepType;
     array: number[];
@@ -30,4 +45,5 @@ export interface SearchStep {
     probes?: number;
     message?: string;
     workspace?: SearchWorkspaceState;
+    interpolation?: InterpolationInsight;
 }
