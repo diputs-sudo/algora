@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meta Binary Search</title>
+    <link rel="stylesheet" href="../../css/public.css">
+    <link rel="stylesheet" href="../../css/algorithm-page.css">
+    <link rel="icon" type="image/png" href="../../assets/logo.png">
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)']],
+                displayMath: [['\\[', '\\]']]
+            },
+            options: {
+                skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+            }
+        };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+</head>
+<body class="algorithm-page searching-algorithm-page">
+    <div class="algorithm-shell">
+        <div class="top-bar algorithm-topbar">
+            <button class="back-btn" onclick="history.back()">
+                <svg height="16" width="16" viewBox="0 0 1024 1024">
+                    <path d="M874.690416 495.52477c0 11.2973-9.168824 20.466124-20.466124 20.466124l-604.773963 0 188.083679 188.083679c7.992021 7.992021 7.992021 20.947078 0 28.939099-4.001127 3.990894-9.240455 5.996574-14.46955 5.996574-5.239328 0-10.478655-1.995447-14.479783-5.996574l-223.00912-223.00912c-3.837398-3.837398-5.996574-9.046027-5.996574-14.46955 0-5.433756 2.159176-10.632151 5.996574-14.46955l223.019353-223.029586c7.992021-7.992021 20.957311-7.992021 28.949332 0 7.992021 8.002254 7.992021 20.957311 0 28.949332l-188.073446 188.073446 604.753497 0C865.521592 475.058646 874.690416 484.217237 874.690416 495.52477z"/>
+                </svg>
+                <span>Back</span>
+            </button>
+
+            <a href="https://github.com/diputs-sudo/algora" target="_blank" class="github-btn">
+                <span class="svgContainer">
+                    <svg fill="white" viewBox="0 0 496 512" height="1.4em">
+                        <path d="M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/>
+                    </svg>
+                </span>
+                <span class="BG"></span>
+            </a>
+        </div>
+
+        <main class="algorithm-page-layout">
+            <section class="algorithm-hero">
+                <div class="algorithm-hero-copy">
+                    <p class="algorithm-kicker">Searching algorithm</p>
+                    <h1>Meta Binary Search</h1>
+                    <p class="algorithm-subtitle">A sorted-array search that builds the target position bit by bit with binary lifting.</p>
+                    <p class="intro-text">
+                        Meta Binary Search searches for the lower-bound index by testing powers of two. Each accepted bit moves the base index
+                        right, and each rejected bit leaves the base in place.
+                    </p>
+
+                    <button id="learnMoreBtn" class="primary-btn">Learn More ↓</button>
+                    <a href="../searching.html" class="primary-btn">Back to Searching</a>
+                </div>
+
+                <aside class="algorithm-hero-panel">
+                    <h2>Quick Facts</h2>
+                    <div class="tags">
+                        <span>Best: \(O(1)\)</span>
+                        <span>Average: \(O(\log n)\)</span>
+                        <span>Worst: \(O(\log n)\)</span>
+                        <span>Memory: \(O(1)\)</span>
+                        <span>Sorted Input</span>
+                        <span>Binary Lifting</span>
+                    </div>
+
+                    <div class="algorithm-hero-notes">
+                        <div>
+                            <strong>Best for</strong>
+                            <p>Understanding lower-bound search as building an index from powers of two.</p>
+                        </div>
+                        <div>
+                            <strong>Watch out for</strong>
+                            <p>Ordinary Binary Search is more common, but this view is useful for bitwise and lifting-style algorithms.</p>
+                        </div>
+                    </div>
+                </aside>
+            </section>
+
+            <div class="search-lab-layout">
+                <section class="visualizer algorithm-panel algorithm-panel-feature search-lab-panel">
+                    <div class="algorithm-section-header">
+                        <div>
+                            <p class="algorithm-section-kicker">Interactive</p>
+                            <h2>Meta Binary Search Lab</h2>
+                        </div>
+                        <div class="visualizer-counter-host"></div>
+                    </div>
+
+                    <div class="controls-panel search-controls-panel">
+                        <div class="search-input-grid">
+                            <label>
+                                <span>Sorted Array</span>
+                                <input type="text" id="datasetInput" placeholder="Sorted values, e.g. 4,9,15,22,30" />
+                            </label>
+                            <label>
+                                <span>Target</span>
+                                <input type="text" id="targetInput" placeholder="Target, e.g. 74" />
+                            </label>
+                            <button id="generateBtn">Generate Sorted Array</button>
+                        </div>
+
+                        <div class="search-playback-row">
+                            <div class="playback-controls">
+                                <button id="playBtn">Play</button>
+                                <button id="pauseBtn">Pause</button>
+                                <button id="stepBtn">Step</button>
+                                <button id="resetBtn">Reset</button>
+                            </div>
+
+                            <div class="speed-control">
+                                <label for="speedRange">Speed</label>
+                                <input type="range" id="speedRange" min="100" max="1200" value="500" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="searchGraphContainer" class="visualizer-container"></div>
+                </section>
+
+                <aside class="algorithm-sidebar search-lab-notes">
+                    <section class="algorithm-panel algorithm-panel-muted">
+                        <h2>Step by Step</h2>
+                        <ul class="algorithm-list">
+                            <li>Start with a base index before the array.</li>
+                            <li>Choose the largest useful power-of-two bit.</li>
+                            <li>Test whether base plus that bit is still smaller than the target.</li>
+                            <li>If it is smaller, keep that bit by moving the base.</li>
+                            <li>After all bits are tested, check base plus one.</li>
+                        </ul>
+                    </section>
+
+                    <section class="algorithm-panel algorithm-panel-muted">
+                        <h2>Engine Notes</h2>
+                        <div class="algorithm-note-block">
+                            <strong>Bit tests</strong>
+                            <p>The visualizer highlights the current base and the test index created by adding the active bit.</p>
+                        </div>
+                        <div class="algorithm-note-block">
+                            <strong>Lower bound</strong>
+                            <p>The final candidate is the first index whose value may be greater than or equal to the target.</p>
+                        </div>
+                    </section>
+                </aside>
+            </div>
+
+            <section class="more-info algorithm-section-light" id="detailsSection">
+                <div class="algorithm-section-header">
+                    <div>
+                        <p class="algorithm-section-kicker">Explanation</p>
+                        <h2>How Meta Binary Search Works</h2>
+                    </div>
+                </div>
+
+                <div class="algorithm-explanation-grid">
+                    <div class="algorithm-explanation-copy">
+                        <p>
+                            Meta Binary Search uses powers of two to build an index. It asks whether adding the current bit keeps the candidate
+                            below the target. If yes, the bit is kept. If no, the bit is skipped.
+                        </p>
+                        <p>
+                            This gives the same \(O(\log n)\) search behavior as Binary Search, but the mental model is closer to binary lifting.
+                        </p>
+
+                        <section class="algorithm-flow-card">
+                            <h3>Visual Walkthrough</h3>
+                            <div class="algorithm-flow">
+                                <article class="algorithm-flow-step">
+                                    <span class="algorithm-flow-index">01</span>
+                                    <h4>Pick Bit</h4>
+                                    <p>Start with the largest power of two below the array length.</p>
+                                </article>
+                                <article class="algorithm-flow-step">
+                                    <span class="algorithm-flow-index">02</span>
+                                    <h4>Test Jump</h4>
+                                    <p>Add the bit to the base index to create a test position.</p>
+                                </article>
+                                <article class="algorithm-flow-step">
+                                    <span class="algorithm-flow-index">03</span>
+                                    <h4>Keep or Skip</h4>
+                                    <p>Move the base only when the test value is smaller than the target.</p>
+                                </article>
+                                <article class="algorithm-flow-step">
+                                    <span class="algorithm-flow-index">04</span>
+                                    <h4>Check Candidate</h4>
+                                    <p>The final base plus one is the lower-bound candidate.</p>
+                                </article>
+                            </div>
+                        </section>
+
+                        <div class="more-info-content" id="standardMoreInfo"></div>
+                    </div>
+
+                    <div class="algorithm-pseudocode-card">
+                        <h3>Pseudocode</h3>
+                        <pre class="code-display pseudo-code">
+<span class="keyword">function</span> <span class="function">metaBinarySearch</span>(array, target):
+    position = -1
+    bit = largest power of two below array.length
+    <span class="keyword">while</span> bit &gt; 0:
+        next = position + bit
+        <span class="keyword">if</span> next &lt; array.length <span class="keyword">and</span> array[next] &lt; target:
+            position = next
+        bit = bit / 2
+    candidate = position + 1
+    <span class="keyword">if</span> candidate &lt; array.length <span class="keyword">and</span> array[candidate] == target:
+        <span class="keyword">return</span> candidate
+    <span class="keyword">return</span> -1
+                        </pre>
+                    </div>
+                </div>
+            </section>
+
+            <section class="implementation-intro" aria-label="Implementation versions">
+                <p class="algorithm-section-kicker">Implementation versions</p>
+                <h2>Readable first, practical second.</h2>
+                <p>Start with the teaching version, then compare it with the production-style version below.</p>
+            </section>
+
+            <section class="code-section algorithm-panel algorithm-panel-code implementation-card implementation-card-standard" id="standardCodeSection">
+                <div class="algorithm-section-header">
+                    <div>
+                        <p class="algorithm-section-kicker">Source code</p>
+                        <h2>Standard Implementation</h2>
+                    </div>
+                    <span class="implementation-badge">Teaching</span>
+                </div>
+
+                <div class="code-header">
+                    <div class="language-switcher">
+                        <button class="lang-btn active" data-lang="python">Python</button>
+                        <button class="lang-btn" data-lang="cpp">C++</button>
+                        <button class="lang-btn" data-lang="java">Java</button>
+                        <button class="lang-btn" data-lang="c">C</button>
+                    </div>
+                    <button class="copy copy-code-btn">
+                        <span data-text-end="Copied!" data-text-initial="Copy to clipboard" class="tooltip"></span>
+                        <span>Copy</span>
+                    </button>
+                </div>
+
+                <pre class="code-display code-display-target">
+        Select a language to view implementation.
+                </pre>
+            </section>
+
+            <section class="code-section algorithm-panel algorithm-panel-code implementation-card implementation-card-production" id="productionCodeSection">
+                <div class="algorithm-section-header">
+                    <div>
+                        <p class="algorithm-section-kicker">Source code</p>
+                        <h2>Production Style Implementation</h2>
+                    </div>
+                    <span class="implementation-badge implementation-badge-production">Practical</span>
+                </div>
+
+                <div class="implementation-note">
+                    <span>Lower-bound contract</span>
+                    <p>Requires sorted input, returns the first matching index, and exposes the insertion point when the target is missing.</p>
+                </div>
+
+                <div class="code-header">
+                    <div class="language-switcher">
+                        <button class="lang-btn active" data-lang="python">Python</button>
+                        <button class="lang-btn" data-lang="cpp">C++</button>
+                        <button class="lang-btn" data-lang="java">Java</button>
+                        <button class="lang-btn" data-lang="c">C</button>
+                    </div>
+                    <button class="copy copy-code-btn">
+                        <span data-text-end="Copied!" data-text-initial="Copy to clipboard" class="tooltip"></span>
+                        <span>Copy</span>
+                    </button>
+                </div>
+
+                <pre class="code-display code-display-target">
+        Select a language to view implementation.
+                </pre>
+            </section>
+        </main>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <span>© 2026 diputs-sudo</span>
+            <span class="dot">•</span>
+            <span>Algorithm Showcase</span>
+            <span class="dot">•</span>
+            <a href="https://github.com/diputs-sudo/algora" target="_blank">GitHub</a>
+            <span class="dot">•</span>
+            <span>Built with HTML, CSS, TypeScript</span>
+            <span class="dot">•</span>
+            <span>Interactive learning tools</span>
+        </div>
+    </footer>
+
+    <script type="module" src="../../dist/searching/meta_binary_search.js"></script>
+</body>
+</html>
