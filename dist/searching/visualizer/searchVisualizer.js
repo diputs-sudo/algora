@@ -20,6 +20,8 @@ export class SearchVisualizer {
         this.statusRoot.classList.add("search-status");
         this.gridRoot = document.createElement("div");
         this.gridRoot.classList.add("search-array-grid");
+        this.metaBinaryRoot = document.createElement("div");
+        this.metaBinaryRoot.classList.add("meta-binary-insight", "hidden");
         this.interpolationRoot = document.createElement("div");
         this.interpolationRoot.classList.add("interpolation-insight", "hidden");
         this.workspaceRoot = document.createElement("div");
@@ -37,6 +39,7 @@ export class SearchVisualizer {
         counterHost?.appendChild(this.statsRoot);
         this.container.appendChild(this.statusRoot);
         this.container.appendChild(this.gridRoot);
+        this.container.appendChild(this.metaBinaryRoot);
         this.container.appendChild(this.interpolationRoot);
         this.container.appendChild(this.workspaceRoot);
         this.setStepCount(0);
@@ -89,6 +92,7 @@ export class SearchVisualizer {
             this.gridRoot.appendChild(item);
         });
         this.renderPointers(step);
+        this.renderMetaBinaryInsight(step.metaBinary);
         this.renderInterpolationInsight(step.interpolation);
         this.renderWorkspace(step.workspace);
         this.setResult(this.getResultText(step));
@@ -148,6 +152,58 @@ export class SearchVisualizer {
         this.interpolationRoot.appendChild(estimate);
         this.interpolationRoot.appendChild(maps);
         this.interpolationRoot.appendChild(note);
+    }
+    renderMetaBinaryInsight(insight) {
+        if (!insight) {
+            this.metaBinaryRoot.classList.add("hidden");
+            this.metaBinaryRoot.innerHTML = "";
+            return;
+        }
+        this.metaBinaryRoot.classList.remove("hidden");
+        this.metaBinaryRoot.innerHTML = "";
+        const header = document.createElement("div");
+        header.classList.add("meta-binary-insight-header");
+        const title = document.createElement("div");
+        title.classList.add("meta-binary-insight-title");
+        title.textContent = "Bit Builder";
+        const decision = document.createElement("div");
+        decision.classList.add("meta-binary-decision", `meta-binary-decision-${insight.decision}`);
+        decision.textContent = formatMetaDecision(insight.decision);
+        header.appendChild(title);
+        header.appendChild(decision);
+        const bitStrip = document.createElement("div");
+        bitStrip.classList.add("meta-binary-bit-strip");
+        insight.bits.forEach(bitState => {
+            const bit = document.createElement("div");
+            bit.classList.add("meta-binary-bit", `meta-binary-bit-${bitState.status}`);
+            bit.textContent = `+${bitState.bit}`;
+            bitStrip.appendChild(bit);
+        });
+        const equation = document.createElement("div");
+        equation.classList.add("meta-binary-equation");
+        equation.appendChild(createMetaMetric("Base", formatMetaIndex(insight.baseIndex), "last confirmed smaller"));
+        equation.appendChild(createMetaMetric("Trying", insight.activeBit > 0 ? `+${insight.activeBit}` : "done", "current bit"));
+        equation.appendChild(createMetaMetric("Test", formatMetaIndex(insight.testIndex), insight.testValue === undefined ? "outside array" : `value ${insight.testValue}`));
+        equation.appendChild(createMetaMetric("Final check", formatMetaIndex(insight.candidateIndex), "base + 1"));
+        const comparison = document.createElement("div");
+        comparison.classList.add("meta-binary-comparison", `meta-binary-comparison-${insight.decision}`);
+        const comparisonLabel = document.createElement("span");
+        comparisonLabel.textContent = "Decision";
+        const comparisonText = document.createElement("strong");
+        comparisonText.textContent = insight.comparison ?? formatMetaDecision(insight.decision);
+        const comparisonDetail = document.createElement("em");
+        comparisonDetail.textContent = insight.decisionText;
+        comparison.appendChild(comparisonLabel);
+        comparison.appendChild(comparisonText);
+        comparison.appendChild(comparisonDetail);
+        const note = document.createElement("p");
+        note.classList.add("meta-binary-note");
+        note.textContent = insight.note;
+        this.metaBinaryRoot.appendChild(header);
+        this.metaBinaryRoot.appendChild(bitStrip);
+        this.metaBinaryRoot.appendChild(equation);
+        this.metaBinaryRoot.appendChild(comparison);
+        this.metaBinaryRoot.appendChild(note);
     }
     renderWorkspace(workspace) {
         if (!workspace || workspace.rows.length === 0) {
@@ -258,6 +314,42 @@ function createEstimateDivider() {
     divider.classList.add("interpolation-estimate-divider");
     divider.textContent = "=";
     return divider;
+}
+function createMetaMetric(label, primary, secondary) {
+    const root = document.createElement("div");
+    root.classList.add("meta-binary-metric");
+    const labelElement = document.createElement("span");
+    labelElement.textContent = label;
+    const primaryElement = document.createElement("strong");
+    primaryElement.textContent = primary;
+    const secondaryElement = document.createElement("em");
+    secondaryElement.textContent = secondary;
+    root.appendChild(labelElement);
+    root.appendChild(primaryElement);
+    root.appendChild(secondaryElement);
+    return root;
+}
+function formatMetaIndex(index) {
+    if (index < 0) {
+        return "before start";
+    }
+    return `index ${index}`;
+}
+function formatMetaDecision(decision) {
+    switch (decision) {
+        case "keep":
+            return "Keep bit";
+        case "skip":
+            return "Skip bit";
+        case "outside":
+            return "Outside";
+        case "found":
+            return "Found";
+        case "miss":
+            return "Not found";
+        default:
+            return "Testing";
+    }
 }
 function formatPercent(percent) {
     return `${Math.round(percent)}%`;
