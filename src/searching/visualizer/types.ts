@@ -23,13 +23,31 @@ export interface InterpolationInsight {
     high: number;
     lowValue: number;
     probeValue: number;
-    highValue: number; 
+    highValue: number;
     target: number;
-    valueDistance: number; 
+    valueDistance: number;
     valueSpan: number;
     ratio: number;
     indexSpan: number;
     note?: string;
+}
+
+export interface MetaBinaryBitState {
+    bit: number;
+    status: "kept" | "skipped" | "active" | "pending";
+}
+
+export interface MetaBinaryInsight {
+    baseIndex: number;
+    activeBit: number;
+    testIndex: number;
+    candidateIndex: number;
+    testValue?: number | string;
+    decision: "pending" | "keep" | "skip" | "outside" | "found" | "miss";
+    comparison?: string;
+    decisionText: string;
+    bits: MetaBinaryBitState[];
+    note: string;
 }
 
 export interface SearchStep {
@@ -46,4 +64,5 @@ export interface SearchStep {
     message?: string;
     workspace?: SearchWorkspaceState;
     interpolation?: InterpolationInsight;
+    metaBinary?: MetaBinaryInsight;
 }
