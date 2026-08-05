@@ -48,7 +48,7 @@ export class SearchController {
         this.stepCount = 0;
         this.visualizer.resetStepCount();
         this.visualizer.render(initialStep);
-    }   
+    }
 
     private advance() {
         const result = this.generator.next();
