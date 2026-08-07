@@ -42,6 +42,19 @@ function createBinaryWorkspace(array, target, low, mid, high, peak, direction, d
         ]
     };
 }
+function createBitonicInsight(phase, left, mid, right, note, peak, side, comparison, decisionText) {
+    return {
+        phase,
+        left,
+        mid,
+        right,
+        peak,
+        side,
+        comparison,
+        decisionText: decisionText ?? "Find the peak first, then search the matching monotonic side.",
+        note
+    };
+}
 export function createBitonicArraySearchInitialStep(array, target) {
     return {
         type: "narrow",
@@ -56,6 +69,9 @@ export function createBitonicArraySearchInitialStep(array, target) {
             ]
             : [],
         message: "Start by finding the peak, where the array changes from increasing to decreasing.",
+        bitonic: array.length > 0
+            ? createBitonicInsight("peak", 0, Math.floor((array.length - 1) / 2), array.length - 1, "A bitonic array is split by its peak. The first phase finds that turning point.", undefined, undefined, undefined, "Compare mid with mid + 1 to follow the slope toward the peak.")
+            : undefined,
         workspace: {
             title: "Bitonic Array Search",
             detail: "A bitonic array rises to one peak and then falls. The peak splits the array into two searchable halves.",
@@ -106,6 +122,7 @@ export function* bitonicArraySearch(array, target) {
             ],
             probes,
             message: `Compare ${array[mid]} at index ${mid} with ${array[mid + 1]} at index ${mid + 1}.`,
+            bitonic: createBitonicInsight("peak", left, mid, right, "The slope tells which side still contains the peak.", undefined, undefined, `${array[mid]} ? ${array[mid + 1]}`, `If arr[mid] is smaller than arr[mid + 1], the slope is rising; otherwise the peak is at mid or left.`),
             workspace: createPeakWorkspace(array, target, left, mid, right, "If the slope rises, the peak is to the right. If it falls, the peak is at mid or to the left.")
         };
         if (array[mid] < array[mid + 1]) {
@@ -123,6 +140,7 @@ export function* bitonicArraySearch(array, target) {
                 ],
                 probes,
                 message: "The slope is rising, so move left past mid to search for the peak.",
+                bitonic: createBitonicInsight("peak", left, left, right, "Rising slope means the peak must be to the right.", undefined, undefined, `${array[mid]} < ${array[mid + 1]}`, `Discard indices through ${mid}; keep ${left} through ${right}.`),
                 workspace: {
                     title: "Peak Detection",
                     detail: "The peak must be somewhere on the right side of the slope.",
@@ -148,6 +166,7 @@ export function* bitonicArraySearch(array, target) {
                 ],
                 probes,
                 message: "The slope is falling, so the peak is at mid or to the left.",
+                bitonic: createBitonicInsight("peak", left, right, right, "Falling slope means mid can still be the peak, so keep it.", undefined, undefined, `${array[mid]} >= ${array[mid + 1]}`, `Keep ${left} through ${right}; the peak is not to the right of mid.`),
                 workspace: {
                     title: "Peak Detection",
                     detail: "Keep mid in the range because it may already be the peak.",
@@ -171,6 +190,7 @@ export function* bitonicArraySearch(array, target) {
         pointers: [{ label: "peak", index: peak }],
         probes,
         message: `Peak found at index ${peak} with value ${array[peak]}.`,
+        bitonic: createBitonicInsight("peak", 0, peak, length - 1, "The peak splits the array into an increasing left side and a decreasing right side.", peak, undefined, `peak = ${array[peak]}`, `Now compare the target with the peak before searching either side.`),
         workspace: {
             title: "Peak Found",
             detail: "The array can now be searched as an increasing left half and a decreasing right half.",
@@ -192,6 +212,7 @@ export function* bitonicArraySearch(array, target) {
             probes,
             resultIndex: peak,
             message: `Target ${target} is the peak at index ${peak}.`,
+            bitonic: createBitonicInsight("found", 0, peak, length - 1, "The maximum value is the target, so no side search is needed.", peak, undefined, `${array[peak]} = ${target}`, `Return the peak index ${peak}.`),
             workspace: {
                 title: "Target Found",
                 detail: "The peak value matches the target.",
@@ -211,6 +232,7 @@ export function* bitonicArraySearch(array, target) {
             probes,
             resultIndex: -1,
             message: `${target} is larger than the peak value ${array[peak]}, so it cannot be in the array.`,
+            bitonic: createBitonicInsight("miss", 0, peak, length - 1, "No value in a bitonic array can be larger than the peak.", peak, undefined, `${target} > ${array[peak]}`, `Reject the search immediately.`),
             workspace: {
                 title: "Target Too Large",
                 detail: "No value in a bitonic array can exceed its peak.",
@@ -251,6 +273,9 @@ function* directionalBinarySearch(array, target, lowStart, highStart, peak, dire
         ],
         probes,
         message: `Search the ${phase}.`,
+        bitonic: createBitonicInsight(direction === "increasing" ? "left" : "right", low, low <= high ? Math.floor((low + high) / 2) : peak, high, direction === "increasing"
+            ? "Search the increasing side with ordinary binary-search comparisons."
+            : "Search the decreasing side with reversed binary-search comparisons.", peak, direction, undefined, low <= high ? `Begin with indices ${low} through ${high}.` : "This side is empty."),
         workspace: {
             title: `${direction === "increasing" ? "Increasing" : "Decreasing"} Binary Search`,
             detail: `The peak is fixed. Now the ${phase} can be searched with binary search rules.`,
@@ -280,6 +305,11 @@ function* directionalBinarySearch(array, target, lowStart, highStart, peak, dire
             ],
             probes,
             message: `Search the ${phase}: compare ${value} at index ${mid} with ${target}.`,
+            bitonic: createBitonicInsight(direction === "increasing" ? "left" : "right", low, mid, high, direction === "increasing"
+                ? "Values increase left to right on this side."
+                : "Values decrease left to right on this side, so the comparison direction flips.", peak, direction, `${value} ? ${target}`, direction === "increasing"
+                ? "If the value is too small, move right; if too large, move left."
+                : "If the value is too large, move right; if too small, move left."),
             workspace: createBinaryWorkspace(array, target, low, mid, high, peak, direction, direction === "increasing"
                 ? "Values rise left to right, so ordinary binary search rules apply."
                 : "Values fall left to right, so the comparison direction is reversed.")
@@ -299,6 +329,7 @@ function* directionalBinarySearch(array, target, lowStart, highStart, peak, dire
                 probes,
                 resultIndex: mid,
                 message: `Target ${target} found at index ${mid}.`,
+                bitonic: createBitonicInsight("found", low, mid, high, `Found ${target} in the ${phase}.`, peak, direction, `${value} = ${target}`, `Return index ${mid}.`),
                 workspace: createBinaryWorkspace(array, target, low, mid, high, peak, direction, `Found ${target} in the ${phase}.`)
             };
             return { index: mid, probes };
@@ -335,6 +366,9 @@ function* directionalBinarySearch(array, target, lowStart, highStart, peak, dire
             ],
             probes,
             message: `Narrow the ${phase}.`,
+            bitonic: createBitonicInsight(direction === "increasing" ? "left" : "right", low, low <= high ? Math.floor((low + high) / 2) : peak, high, low <= high ? "Continue searching the narrowed monotonic side." : "This monotonic side is exhausted.", peak, direction, direction === "increasing"
+                ? (value < target ? `${value} < ${target}` : `${value} > ${target}`)
+                : (value > target ? `${value} > ${target}` : `${value} < ${target}`), low <= high ? `Keep indices ${low} through ${high}.` : "Move to the other side or finish."),
             workspace: {
                 title: `${direction === "increasing" ? "Increasing" : "Decreasing"} Binary Search`,
                 detail: low <= high ? "The target can only remain inside the updated range." : "This half is exhausted.",
@@ -354,6 +388,7 @@ function* directionalBinarySearch(array, target, lowStart, highStart, peak, dire
             probes,
             resultIndex: -1,
             message: `Target ${target} is not in either side of the bitonic array.`,
+            bitonic: createBitonicInsight("miss", low, peak, high, "Both monotonic sides were exhausted without a match.", peak, "decreasing", "both sides empty", `${target} is not present in the bitonic array.`),
             workspace: {
                 title: "Search Complete",
                 detail: "Both the increasing and decreasing halves were exhausted.",
