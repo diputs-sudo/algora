@@ -80,39 +80,43 @@ export class SearchVisualizer {
         this.pointerSlots = [];
         this.container.style.setProperty("--search-cell-count", String(Math.min(Math.max(step.array.length, 1), 20)));
         this.statusRoot.textContent = step.message ?? "Set a sorted array and target, then step through the search.";
-        step.array.forEach((value, index) => {
-            const item = document.createElement("div");
-            item.classList.add("search-array-item");
-            const indexCell = document.createElement("div");
-            indexCell.classList.add("search-index");
-            indexCell.textContent = String(index);
-            item.appendChild(indexCell);
-            const cell = document.createElement("div");
-            cell.classList.add("search-cell");
-            const valueElement = document.createElement("span");
-            valueElement.classList.add("search-cell-value");
-            valueElement.textContent = String(value);
-            cell.appendChild(valueElement);
-            if (step.low !== undefined && step.high !== undefined && index >= step.low && index <= step.high) {
-                cell.classList.add("in-range");
-            }
-            if (index === step.mid || step.highlightIndices?.includes(index)) {
-                cell.classList.add("mid");
-            }
-            if (index === step.resultIndex && step.type === "found") {
-                cell.classList.add("found");
-            }
-            if (step.type === "miss" && index === step.mid) {
-                cell.classList.add("miss");
-            }
-            item.appendChild(cell);
-            const pointerSlot = document.createElement("div");
-            pointerSlot.classList.add("search-pointer-slot");
-            item.appendChild(pointerSlot);
-            this.pointerSlots[index] = pointerSlot;
-            this.gridRoot.appendChild(item);
-        });
-        this.renderPointers(step);
+        const useFractionalWorkspaceOnly = step.fractionalCascading !== undefined;
+        this.gridRoot.classList.toggle("hidden", useFractionalWorkspaceOnly);
+        if (!useFractionalWorkspaceOnly) {
+            step.array.forEach((value, index) => {
+                const item = document.createElement("div");
+                item.classList.add("search-array-item");
+                const indexCell = document.createElement("div");
+                indexCell.classList.add("search-index");
+                indexCell.textContent = String(index);
+                item.appendChild(indexCell);
+                const cell = document.createElement("div");
+                cell.classList.add("search-cell");
+                const valueElement = document.createElement("span");
+                valueElement.classList.add("search-cell-value");
+                valueElement.textContent = String(value);
+                cell.appendChild(valueElement);
+                if (step.low !== undefined && step.high !== undefined && index >= step.low && index <= step.high) {
+                    cell.classList.add("in-range");
+                }
+                if (index === step.mid || step.highlightIndices?.includes(index)) {
+                    cell.classList.add("mid");
+                }
+                if (index === step.resultIndex && step.type === "found") {
+                    cell.classList.add("found");
+                }
+                if (step.type === "miss" && index === step.mid) {
+                    cell.classList.add("miss");
+                }
+                item.appendChild(cell);
+                const pointerSlot = document.createElement("div");
+                pointerSlot.classList.add("search-pointer-slot");
+                item.appendChild(pointerSlot);
+                this.pointerSlots[index] = pointerSlot;
+                this.gridRoot.appendChild(item);
+            });
+            this.renderPointers(step);
+        }
         this.renderMetaBinaryInsight(step.metaBinary);
         this.renderUniformBinaryInsight(step.uniformBinary);
         this.renderFibonacciInsight(step.fibonacci);
@@ -543,6 +547,43 @@ export class SearchVisualizer {
         phase.textContent = formatFractionalPhase(insight.phase);
         header.appendChild(title);
         header.appendChild(phase);
+        const cascadeMap = document.createElement("div");
+        cascadeMap.classList.add("fractional-cascading-map");
+        insight.catalogs.forEach((catalog, catalogIndex) => {
+            const row = document.createElement("div");
+            row.classList.add("fractional-cascading-row");
+            if (catalogIndex === insight.catalogIndex) {
+                row.classList.add("active");
+            }
+            const label = document.createElement("div");
+            label.classList.add("fractional-cascading-row-label");
+            label.textContent = `C${catalogIndex + 1}`;
+            row.appendChild(label);
+            const cells = document.createElement("div");
+            cells.classList.add("fractional-cascading-cells");
+            cells.style.setProperty("--fractional-count", String(Math.min(Math.max(catalog.length, 1), 12)));
+            catalog.forEach((value, valueIndex) => {
+                const cell = document.createElement("div");
+                cell.classList.add("fractional-cascading-cell");
+                cell.textContent = String(value);
+                if (catalogIndex === insight.catalogIndex && valueIndex === insight.anchorIndex) {
+                    cell.classList.add("is-anchor");
+                }
+                if (catalogIndex === insight.catalogIndex && valueIndex === insight.probeIndex) {
+                    cell.classList.add("is-probe");
+                }
+                if (catalogIndex === insight.catalogIndex && valueIndex === insight.resultIndex) {
+                    cell.classList.add("is-result");
+                }
+                cells.appendChild(cell);
+            });
+            row.appendChild(cells);
+            const rowState = document.createElement("div");
+            rowState.classList.add("fractional-cascading-row-state");
+            rowState.textContent = formatFractionalRowState(insight, catalogIndex);
+            row.appendChild(rowState);
+            cascadeMap.appendChild(row);
+        });
         const metrics = document.createElement("div");
         metrics.classList.add("fractional-cascading-metrics");
         metrics.appendChild(createFractionalMetric("Catalog", `${insight.catalogIndex + 1} / ${insight.catalogCount}`, "current list"));
@@ -558,6 +599,7 @@ export class SearchVisualizer {
         note.classList.add("fractional-cascading-note");
         note.textContent = insight.note;
         this.fractionalCascadingRoot.appendChild(header);
+        this.fractionalCascadingRoot.appendChild(cascadeMap);
         this.fractionalCascadingRoot.appendChild(metrics);
         this.fractionalCascadingRoot.appendChild(comparison);
         this.fractionalCascadingRoot.appendChild(note);
@@ -917,9 +959,29 @@ function formatFractionalPhase(phase) {
             return "Found";
         case "miss":
             return "Not found";
+        case "done":
+            return "Complete";
         default:
             return "First search";
     }
+}
+function formatFractionalRowState(insight, catalogIndex) {
+    if (catalogIndex < insight.catalogIndex) {
+        return "linked";
+    }
+    if (catalogIndex > insight.catalogIndex) {
+        return "waiting";
+    }
+    if (insight.phase === "first-search") {
+        return "binary seed";
+    }
+    if (insight.phase === "found") {
+        return "match";
+    }
+    if (insight.phase === "done") {
+        return "complete";
+    }
+    return "bridge check";
 }
 function formatUniformDirection(direction) {
     switch (direction) {
