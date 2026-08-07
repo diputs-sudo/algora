@@ -180,7 +180,7 @@ export class SearchVisualizer {
         this.renderRangeSearchInsight(step.rangeSearch);
         this.renderJumpSearchInsight(step.jumpSearch);
         this.renderSentinelLinearInsight(step.sentinelLinear);
-        this.renderBitonicInsight(step.bitonic);
+        this.renderBitonicInsight(step.bitonic, step.array, step.target);
         this.renderFractionalCascadingInsight(step.fractionalCascading);
         this.renderInterpolationInsight(step.interpolation);
         this.renderWorkspace(step.workspace);
@@ -595,7 +595,7 @@ export class SearchVisualizer {
         this.sentinelLinearRoot.appendChild(note);
     }
 
-    private renderBitonicInsight(insight?: BitonicSearchInsight) {
+    private renderBitonicInsight(insight?: BitonicSearchInsight, array: number[] = [], target?: number) {
         if (!insight) {
             this.bitonicRoot.classList.add("hidden");
             this.bitonicRoot.innerHTML = "";
@@ -619,12 +619,70 @@ export class SearchVisualizer {
         header.appendChild(title);
         header.appendChild(phase);
 
+        const stage = document.createElement("div");
+        stage.classList.add("bitonic-stage");
+        stage.style.setProperty("--bitonic-count", String(Math.min(Math.max(array.length, 1), 20)));
+
+        const minValue = array.length ? Math.min(...array) : 0;
+        const maxValue = array.length ? Math.max(...array) : 1;
+        const span = Math.max(maxValue - minValue, 1);
+
+        array.forEach((value, index) => {
+            const point = document.createElement("div");
+            point.classList.add("bitonic-point");
+            point.style.setProperty("--bitonic-height", `${30 + ((value - minValue) / span) * 70}%`);
+
+            if (index >= insight.left && index <= insight.right) {
+                point.classList.add("in-range");
+            }
+
+            if (index === insight.mid) {
+                point.classList.add("is-mid");
+            }
+
+            if (insight.phase === "peak" && index === insight.mid + 1 && insight.mid + 1 < array.length) {
+                point.classList.add("is-next");
+            }
+
+            if (index === insight.peak) {
+                point.classList.add("is-peak");
+            }
+
+            if (insight.side === "increasing" && insight.peak !== undefined && index <= insight.peak) {
+                point.classList.add("is-active-side");
+            }
+
+            if (insight.side === "decreasing" && insight.peak !== undefined && index >= insight.peak) {
+                point.classList.add("is-active-side");
+            }
+
+            const bar = document.createElement("div");
+            bar.classList.add("bitonic-point-bar");
+
+            const valueLabel = document.createElement("strong");
+            valueLabel.textContent = String(value);
+
+            const indexLabel = document.createElement("span");
+            indexLabel.textContent = String(index);
+
+            point.appendChild(bar);
+            point.appendChild(valueLabel);
+            point.appendChild(indexLabel);
+            stage.appendChild(point);
+        });
+
+        const split = document.createElement("div");
+        split.classList.add("bitonic-split-map");
+        split.appendChild(createBitonicSplitCell("Increasing side", insight.peak === undefined ? "before peak" : `0 to ${insight.peak}`, insight.side === "increasing"));
+        split.appendChild(createBitonicSplitCell("Peak", insight.peak === undefined ? "searching" : `${formatSearchIndex(insight.peak)} = ${array[insight.peak]}`, insight.peak !== undefined && insight.phase === "peak"));
+        split.appendChild(createBitonicSplitCell("Decreasing side", insight.peak === undefined ? "after peak" : `${insight.peak} to ${array.length - 1}`, insight.side === "decreasing"));
+
         const metrics = document.createElement("div");
         metrics.classList.add("bitonic-metrics");
-        metrics.appendChild(createBitonicMetric("Range", `${formatSearchIndex(insight.left)} to ${formatSearchIndex(insight.right)}`, "active bounds"));
-        metrics.appendChild(createBitonicMetric("Probe", formatSearchIndex(insight.mid), insight.phase === "peak" ? "slope check" : "binary mid"));
-        metrics.appendChild(createBitonicMetric("Peak", insight.peak === undefined ? "unknown" : formatSearchIndex(insight.peak), insight.peak === undefined ? "still searching" : "split point"));
-        metrics.appendChild(createBitonicMetric("Side", insight.side ?? "peak", insight.side === "decreasing" ? "reversed rule" : "normal rule"));
+        metrics.appendChild(createBitonicMetric("Window", `${formatSearchIndex(insight.left)} to ${formatSearchIndex(insight.right)}`, "current candidates"));
+        metrics.appendChild(createBitonicMetric("Probe", formatSearchIndex(insight.mid), insight.phase === "peak" ? "slope check" : "binary middle"));
+        metrics.appendChild(createBitonicMetric("Target", target === undefined ? "none" : String(target), "wanted value"));
+        metrics.appendChild(createBitonicMetric("Rule", formatBitonicRule(insight), insight.side === "decreasing" ? "comparison flips" : "comparison follows order"));
 
         const comparison = document.createElement("div");
         comparison.classList.add("bitonic-comparison", `bitonic-comparison-${insight.phase}`);
@@ -637,6 +695,8 @@ export class SearchVisualizer {
         note.textContent = insight.note;
 
         this.bitonicRoot.appendChild(header);
+        this.bitonicRoot.appendChild(stage);
+        this.bitonicRoot.appendChild(split);
         this.bitonicRoot.appendChild(metrics);
         this.bitonicRoot.appendChild(comparison);
         this.bitonicRoot.appendChild(note);
@@ -976,6 +1036,26 @@ function createBitonicMetric(label: string, primary: string, secondary: string):
     return root;
 }
 
+function createBitonicSplitCell(label: string, value: string, active: boolean): HTMLDivElement {
+    const root = document.createElement("div");
+    root.classList.add("bitonic-split-cell");
+
+    if (active) {
+        root.classList.add("active");
+    }
+
+    const labelElement = document.createElement("span");
+    labelElement.textContent = label;
+
+    const valueElement = document.createElement("strong");
+    valueElement.textContent = value;
+
+    root.appendChild(labelElement);
+    root.appendChild(valueElement);
+
+    return root;
+}
+
 function createFractionalMetric(label: string, primary: string, secondary: string): HTMLDivElement {
     const root = document.createElement("div");
     root.classList.add("fractional-cascading-metric");
@@ -1107,6 +1187,22 @@ function formatBitonicPhase(phase: BitonicSearchInsight["phase"]): string {
         default:
             return "Find peak";
     }
+}
+
+function formatBitonicRule(insight: BitonicSearchInsight): string {
+    if (insight.phase === "peak") {
+        return "follow slope";
+    }
+
+    if (insight.phase === "found") {
+        return "return index";
+    }
+
+    if (insight.phase === "miss") {
+        return "stop";
+    }
+
+    return insight.side === "decreasing" ? "descending" : "ascending";
 }
 
 function formatFractionalPhase(phase: FractionalCascadingInsight["phase"]): string {
