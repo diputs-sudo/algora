@@ -132,9 +132,10 @@ export interface BitonicSearchInsight {
 }
 
 export interface FractionalCascadingInsight {
-    phase: "first-search" | "cascade" | "found" | "miss";
+    phase: "first-search" | "cascade" | "found" | "miss" | "done";
     catalogIndex: number;
     catalogCount: number;
+    catalogs: number[][];
     anchorIndex: number;
     probeIndex: number;
     resultIndex?: number;
