@@ -36,6 +36,8 @@ export class SearchVisualizer {
         this.bitonicRoot.classList.add("bitonic-insight", "hidden");
         this.fractionalCascadingRoot = document.createElement("div");
         this.fractionalCascadingRoot.classList.add("fractional-cascading-insight", "hidden");
+        this.hashTableRoot = document.createElement("div");
+        this.hashTableRoot.classList.add("hash-table-insight", "hidden");
         this.interpolationRoot = document.createElement("div");
         this.interpolationRoot.classList.add("interpolation-insight", "hidden");
         this.workspaceRoot = document.createElement("div");
@@ -61,6 +63,7 @@ export class SearchVisualizer {
         this.container.appendChild(this.sentinelLinearRoot);
         this.container.appendChild(this.bitonicRoot);
         this.container.appendChild(this.fractionalCascadingRoot);
+        this.container.appendChild(this.hashTableRoot);
         this.container.appendChild(this.interpolationRoot);
         this.container.appendChild(this.workspaceRoot);
         this.setStepCount(0);
@@ -125,6 +128,7 @@ export class SearchVisualizer {
         this.renderSentinelLinearInsight(step.sentinelLinear);
         this.renderBitonicInsight(step.bitonic, step.array, step.target);
         this.renderFractionalCascadingInsight(step.fractionalCascading);
+        this.renderHashTableInsight(step.hashTable);
         this.renderInterpolationInsight(step.interpolation);
         this.renderWorkspace(step.workspace);
         this.setResult(this.getResultText(step));
@@ -604,6 +608,111 @@ export class SearchVisualizer {
         this.fractionalCascadingRoot.appendChild(comparison);
         this.fractionalCascadingRoot.appendChild(note);
     }
+    renderHashTableInsight(insight) {
+        if (!insight) {
+            this.hashTableRoot.classList.add("hidden");
+            this.hashTableRoot.innerHTML = "";
+            return;
+        }
+        this.hashTableRoot.classList.remove("hidden");
+        this.hashTableRoot.innerHTML = "";
+        const header = document.createElement("div");
+        header.classList.add("hash-table-insight-header");
+        const title = document.createElement("div");
+        title.classList.add("hash-table-insight-title");
+        title.textContent = "Hash Debugger";
+        const phase = document.createElement("div");
+        phase.classList.add("hash-table-phase", `hash-table-phase-${insight.phase}`);
+        phase.textContent = formatHashTablePhase(insight.phase);
+        header.appendChild(title);
+        header.appendChild(phase);
+        const debuggerPanel = document.createElement("div");
+        debuggerPanel.classList.add("hash-table-debugger");
+        const stepCard = document.createElement("div");
+        stepCard.classList.add("hash-table-step-card");
+        const stepLabel = document.createElement("span");
+        stepLabel.classList.add("hash-table-step-label");
+        stepLabel.textContent = "Current step";
+        const stepTitle = document.createElement("strong");
+        stepTitle.textContent = insight.stepTitle;
+        const stepDetail = document.createElement("p");
+        stepDetail.textContent = insight.stepDetail;
+        stepCard.appendChild(stepLabel);
+        stepCard.appendChild(stepTitle);
+        stepCard.appendChild(stepDetail);
+        const flow = document.createElement("div");
+        flow.classList.add("hash-table-flow");
+        flow.appendChild(createHashFormulaCell("Key", String(insight.value)));
+        flow.appendChild(createHashFormulaArrow("passes through"));
+        flow.appendChild(createHashFormulaCell("Hash function", `hash(key) = key % ${insight.buckets.length}`));
+        flow.appendChild(createHashFormulaArrow("computes"));
+        flow.appendChild(createHashFormulaCell("Bucket", `${insight.value} % ${insight.buckets.length} = ${insight.hashIndex}`));
+        debuggerPanel.appendChild(stepCard);
+        debuggerPanel.appendChild(flow);
+        const path = document.createElement("div");
+        path.classList.add("hash-table-path");
+        path.appendChild(createHashPathNode("Start", `Bucket ${insight.hashIndex}`, insight.hashIndex === insight.probeIndex));
+        path.appendChild(createHashPathLine(insight.probeLength <= 1 ? "direct" : `${insight.probeLength} probes`));
+        path.appendChild(createHashPathNode("Inspect", `Bucket ${insight.probeIndex}`, true));
+        path.appendChild(createHashPathLine(formatHashPathResult(insight.phase)));
+        path.appendChild(createHashPathNode("Decision", formatHashTablePhase(insight.phase), insight.phase === "found" || insight.phase === "miss"));
+        const buckets = document.createElement("div");
+        buckets.classList.add("hash-table-buckets");
+        buckets.style.setProperty("--hash-bucket-count", String(Math.min(Math.max(insight.buckets.length, 1), 17)));
+        insight.buckets.forEach(bucket => {
+            const bucketElement = document.createElement("div");
+            bucketElement.classList.add("hash-table-bucket", `hash-table-bucket-${bucket.state}`);
+            if (bucket.index === insight.hashIndex && bucket.index !== insight.probeIndex) {
+                bucketElement.classList.add("hash-table-bucket-hash-start");
+            }
+            const index = document.createElement("span");
+            index.textContent = String(bucket.index);
+            const key = document.createElement("strong");
+            key.textContent = bucket.key === undefined ? "empty" : String(bucket.key);
+            const source = document.createElement("em");
+            source.textContent = bucket.value === undefined ? "slot" : `array ${bucket.value}`;
+            bucketElement.appendChild(index);
+            bucketElement.appendChild(key);
+            bucketElement.appendChild(source);
+            buckets.appendChild(bucketElement);
+        });
+        const probe = document.createElement("div");
+        probe.classList.add("hash-table-probe");
+        const probeHeader = document.createElement("div");
+        probeHeader.classList.add("hash-table-probe-header");
+        probeHeader.appendChild(createInlineLabel(`Probe #${Math.max(insight.probeLength, 1)}`));
+        probeHeader.appendChild(createInlineStrong(`Bucket ${insight.probeIndex}`));
+        const probeGrid = document.createElement("div");
+        probeGrid.classList.add("hash-table-probe-grid");
+        probeGrid.appendChild(createHashTableMetric("Current bucket", String(insight.probeIndex), "linear probing position"));
+        probeGrid.appendChild(createHashTableMetric("Bucket contains", formatHashBucketContents(insight), insight.bucketDetail));
+        probeGrid.appendChild(createHashTableMetric("Comparison", insight.comparison ?? formatHashTablePhase(insight.phase), formatHashComparisonDetail(insight)));
+        probe.appendChild(probeHeader);
+        probe.appendChild(probeGrid);
+        const stats = document.createElement("div");
+        stats.classList.add("hash-table-stats");
+        stats.appendChild(createHashTableMetric("Capacity", String(insight.buckets.length), "bucket slots"));
+        stats.appendChild(createHashTableMetric("Items", String(insight.items), "stored keys"));
+        stats.appendChild(createHashTableMetric("Load factor", `${Math.round(insight.loadFactor * 100)}%`, "items / capacity"));
+        stats.appendChild(createHashTableMetric("Build collisions", String(insight.collisions), "while filling table"));
+        stats.appendChild(createHashTableMetric("Probe length", String(insight.probeLength), formatProbeCount(insight.probeLength)));
+        const comparison = document.createElement("div");
+        comparison.classList.add("hash-table-comparison", `hash-table-comparison-${insight.phase}`);
+        comparison.appendChild(createInlineLabel("Decision"));
+        comparison.appendChild(createInlineStrong(insight.comparison ?? formatHashTablePhase(insight.phase)));
+        comparison.appendChild(createInlineEm(insight.decisionText));
+        const note = document.createElement("p");
+        note.classList.add("hash-table-note");
+        note.textContent = insight.note;
+        this.hashTableRoot.appendChild(header);
+        this.hashTableRoot.appendChild(debuggerPanel);
+        this.hashTableRoot.appendChild(path);
+        this.hashTableRoot.appendChild(buckets);
+        this.hashTableRoot.appendChild(probe);
+        this.hashTableRoot.appendChild(stats);
+        this.hashTableRoot.appendChild(comparison);
+        this.hashTableRoot.appendChild(note);
+    }
     renderWorkspace(workspace) {
         if (!workspace || workspace.rows.length === 0) {
             this.container.classList.remove("has-workspace");
@@ -840,6 +949,61 @@ function createFractionalMetric(label, primary, secondary) {
     root.appendChild(secondaryElement);
     return root;
 }
+function createHashFormulaCell(label, value) {
+    const root = document.createElement("div");
+    root.classList.add("hash-table-formula-cell");
+    const labelElement = document.createElement("span");
+    labelElement.textContent = label;
+    const valueElement = document.createElement("strong");
+    valueElement.textContent = value;
+    root.appendChild(labelElement);
+    root.appendChild(valueElement);
+    return root;
+}
+function createHashFormulaArrow(text) {
+    const root = document.createElement("div");
+    root.classList.add("hash-table-formula-arrow");
+    root.textContent = text;
+    return root;
+}
+function createHashPathNode(label, value, active) {
+    const root = document.createElement("div");
+    root.classList.add("hash-table-path-node");
+    if (active) {
+        root.classList.add("active");
+    }
+    const labelElement = document.createElement("span");
+    labelElement.textContent = label;
+    const valueElement = document.createElement("strong");
+    valueElement.textContent = value;
+    root.appendChild(labelElement);
+    root.appendChild(valueElement);
+    return root;
+}
+function createHashPathLine(text) {
+    const root = document.createElement("div");
+    root.classList.add("hash-table-path-line");
+    const line = document.createElement("span");
+    const label = document.createElement("em");
+    label.textContent = text;
+    root.appendChild(line);
+    root.appendChild(label);
+    return root;
+}
+function createHashTableMetric(label, primary, secondary) {
+    const root = document.createElement("div");
+    root.classList.add("hash-table-metric");
+    const labelElement = document.createElement("span");
+    labelElement.textContent = label;
+    const primaryElement = document.createElement("strong");
+    primaryElement.textContent = primary;
+    const secondaryElement = document.createElement("em");
+    secondaryElement.textContent = secondary;
+    root.appendChild(labelElement);
+    root.appendChild(primaryElement);
+    root.appendChild(secondaryElement);
+    return root;
+}
 function createInlineLabel(text) {
     const element = document.createElement("span");
     element.textContent = text;
@@ -982,6 +1146,62 @@ function formatFractionalRowState(insight, catalogIndex) {
         return "complete";
     }
     return "bridge check";
+}
+function formatHashTablePhase(phase) {
+    switch (phase) {
+        case "collision":
+            return "Collision";
+        case "lookup":
+            return "Lookup";
+        case "found":
+            return "Found";
+        case "miss":
+            return "Not found";
+        default:
+            return "Build table";
+    }
+}
+function formatHashBucketContents(insight) {
+    const bucket = insight.buckets[insight.probeIndex];
+    if (!bucket || bucket.key === undefined) {
+        return "Empty";
+    }
+    if (bucket.value === undefined) {
+        return `Key ${bucket.key}`;
+    }
+    return `Key ${bucket.key}, index ${bucket.value}`;
+}
+function formatHashComparisonDetail(insight) {
+    if (insight.phase === "miss") {
+        return "An empty bucket ends the probe chain.";
+    }
+    if (insight.phase === "found") {
+        return "Keys match, so lookup returns the stored index.";
+    }
+    if (insight.phase === "collision") {
+        return "Different keys share a probe path.";
+    }
+    if (insight.phase === "lookup") {
+        return "Different key, so continue probing.";
+    }
+    return "During build, the table stores each key with its array index.";
+}
+function formatHashPathResult(phase) {
+    switch (phase) {
+        case "collision":
+            return "blocked";
+        case "lookup":
+            return "keep probing";
+        case "found":
+            return "match";
+        case "miss":
+            return "empty stop";
+        default:
+            return "store";
+    }
+}
+function formatProbeCount(count) {
+    return count === 1 ? "probe for this key" : "probes for this key";
 }
 function formatUniformDirection(direction) {
     switch (direction) {
