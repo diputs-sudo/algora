@@ -144,6 +144,32 @@ export interface FractionalCascadingInsight {
     note: string;
 }
 
+export interface HashTableBucketState {
+    index: number;
+    key?: number;
+    value?: number;
+    state: "empty" | "filled" | "active" | "collision" | "found" | "miss";
+}
+
+export interface HashTableInsight {
+    phase: "build" | "collision" | "lookup" | "found" | "miss";
+    buckets: HashTableBucketState[];
+    hashIndex: number;
+    probeIndex: number;
+    sourceIndex?: number;
+    value: number;
+    items: number;
+    loadFactor: number;
+    collisions: number;
+    probeLength: number;
+    stepTitle: string;
+    stepDetail: string;
+    bucketDetail: string;
+    comparison?: string;
+    decisionText: string;
+    note: string;
+}
+
 export interface SearchStep {
     type: SearchStepType;
     array: number[];
@@ -166,4 +192,5 @@ export interface SearchStep {
     sentinelLinear?: SentinelLinearInsight;
     bitonic?: BitonicSearchInsight;
     fractionalCascading?: FractionalCascadingInsight;
+    hashTable?: HashTableInsight;
 }
