@@ -1,4 +1,4 @@
-import { BitonicSearchInsight, FibonacciSearchInsight, FractionalCascadingInsight, HashTableInsight, InterpolationInsight, JumpSearchInsight, MetaBinaryInsight, RangeSearchInsight, SearchStep, SearchWorkspaceState, SentinelLinearInsight, UniformBinaryInsight } from "./types.js";
+import { BitonicSearchInsight, FibonacciSearchInsight, FractionalCascadingInsight, HashTableInsight, InterpolationInsight, JumpSearchInsight, MetaBinaryInsight, ParametricSearchInsight, RangeSearchInsight, SearchStep, SearchWorkspaceState, SentinelLinearInsight, UniformBinaryInsight } from "./types.js";
 
 export class SearchVisualizer {
     private container: HTMLElement;
@@ -17,6 +17,7 @@ export class SearchVisualizer {
     private bitonicRoot: HTMLDivElement;
     private fractionalCascadingRoot: HTMLDivElement;
     private hashTableRoot: HTMLDivElement;
+    private parametricRoot: HTMLDivElement;
     private interpolationRoot: HTMLDivElement;
     private workspaceRoot: HTMLDivElement;
     private workspaceTitle: HTMLDivElement;
@@ -78,6 +79,9 @@ export class SearchVisualizer {
         this.hashTableRoot = document.createElement("div");
         this.hashTableRoot.classList.add("hash-table-insight", "hidden");
 
+        this.parametricRoot = document.createElement("div");
+        this.parametricRoot.classList.add("parametric-insight", "hidden");
+
         this.interpolationRoot = document.createElement("div");
         this.interpolationRoot.classList.add("interpolation-insight", "hidden");
 
@@ -110,6 +114,7 @@ export class SearchVisualizer {
         this.container.appendChild(this.bitonicRoot);
         this.container.appendChild(this.fractionalCascadingRoot);
         this.container.appendChild(this.hashTableRoot);
+        this.container.appendChild(this.parametricRoot);
         this.container.appendChild(this.interpolationRoot);
         this.container.appendChild(this.workspaceRoot);
 
@@ -192,6 +197,7 @@ export class SearchVisualizer {
         this.renderBitonicInsight(step.bitonic, step.array, step.target);
         this.renderFractionalCascadingInsight(step.fractionalCascading);
         this.renderHashTableInsight(step.hashTable);
+        this.renderParametricInsight(step.parametric);
         this.renderInterpolationInsight(step.interpolation);
         this.renderWorkspace(step.workspace);
 
@@ -945,6 +951,114 @@ export class SearchVisualizer {
         this.hashTableRoot.appendChild(note);
     }
 
+    private renderParametricInsight(insight?: ParametricSearchInsight) {
+        if (!insight) {
+            this.parametricRoot.classList.add("hidden");
+            this.parametricRoot.innerHTML = "";
+            return;
+        }
+
+        this.parametricRoot.classList.remove("hidden");
+        this.parametricRoot.innerHTML = "";
+
+        const header = document.createElement("div");
+        header.classList.add("parametric-insight-header");
+
+        const title = document.createElement("div");
+        title.classList.add("parametric-insight-title");
+        title.textContent = "Answer Space Debugger";
+
+        const phase = document.createElement("div");
+        phase.classList.add("parametric-phase", `parametric-phase-${insight.phase}`);
+        phase.textContent = formatParametricPhase(insight.phase);
+
+        header.appendChild(title);
+        header.appendChild(phase);
+
+        const range = document.createElement("div");
+        range.classList.add("parametric-range");
+
+        const span = Math.max(insight.high - insight.low, 1);
+        const candidatePosition = Math.max(0, Math.min(100, ((insight.candidate - insight.low) / span) * 100));
+        range.style.setProperty("--parametric-candidate", `${candidatePosition}%`);
+
+        const rangeHeader = document.createElement("div");
+        rangeHeader.classList.add("parametric-range-header");
+        rangeHeader.appendChild(createInlineLabel("Candidate answer"));
+        rangeHeader.appendChild(createInlineStrong(String(insight.candidate)));
+
+        const track = document.createElement("div");
+        track.classList.add("parametric-track");
+
+        const marker = document.createElement("div");
+        marker.classList.add("parametric-track-marker");
+        marker.textContent = String(insight.candidate);
+        track.appendChild(marker);
+
+        const endpoints = document.createElement("div");
+        endpoints.classList.add("parametric-range-endpoints");
+        endpoints.appendChild(createInlineStrong(String(insight.low)));
+        endpoints.appendChild(createInlineStrong(String(insight.high)));
+
+        range.appendChild(rangeHeader);
+        range.appendChild(track);
+        range.appendChild(endpoints);
+
+        const loads = document.createElement("div");
+        loads.classList.add("parametric-loads");
+
+        insight.loads.forEach(load => {
+            const day = document.createElement("div");
+            day.classList.add("parametric-day");
+
+            if (load.day > insight.daysLimit) {
+                day.classList.add("over-limit");
+            }
+
+            const dayHeader = document.createElement("div");
+            dayHeader.classList.add("parametric-day-header");
+            dayHeader.appendChild(createInlineLabel(`Day ${load.day}`));
+            dayHeader.appendChild(createInlineStrong(`${load.load} / ${insight.candidate}`));
+
+            const packages = document.createElement("div");
+            packages.classList.add("parametric-packages");
+
+            load.packages.forEach(weight => {
+                const item = document.createElement("span");
+                item.textContent = String(weight);
+                packages.appendChild(item);
+            });
+
+            day.appendChild(dayHeader);
+            day.appendChild(packages);
+            loads.appendChild(day);
+        });
+
+        const metrics = document.createElement("div");
+        metrics.classList.add("parametric-metrics");
+        metrics.appendChild(createParametricMetric("Allowed days", String(insight.daysLimit), "constraint"));
+        metrics.appendChild(createParametricMetric("Used days", String(insight.usedDays), insight.usedDays <= insight.daysLimit ? "fits" : "too many"));
+        metrics.appendChild(createParametricMetric("Best so far", insight.best === undefined ? "pending" : String(insight.best), "smallest feasible"));
+        metrics.appendChild(createParametricMetric("Search range", `${insight.low} to ${insight.high}`, "possible answers"));
+
+        const comparison = document.createElement("div");
+        comparison.classList.add("parametric-comparison", `parametric-comparison-${insight.phase}`);
+        comparison.appendChild(createInlineLabel("Decision"));
+        comparison.appendChild(createInlineStrong(insight.comparison));
+        comparison.appendChild(createInlineEm(insight.decisionText));
+
+        const note = document.createElement("p");
+        note.classList.add("parametric-note");
+        note.textContent = insight.note;
+
+        this.parametricRoot.appendChild(header);
+        this.parametricRoot.appendChild(range);
+        this.parametricRoot.appendChild(loads);
+        this.parametricRoot.appendChild(metrics);
+        this.parametricRoot.appendChild(comparison);
+        this.parametricRoot.appendChild(note);
+    }
+
     private renderWorkspace(workspace?: SearchWorkspaceState) {
         if (!workspace || workspace.rows.length === 0) {
             this.container.classList.remove("has-workspace");
@@ -1001,6 +1115,10 @@ export class SearchVisualizer {
     }
 
     private getResultText(step: SearchStep): string {
+        if (step.parametric?.phase === "done") {
+            return `Answer ${step.parametric.best ?? step.parametric.candidate}`;
+        }
+
         if (step.type === "found") {
             return `Found at index ${step.resultIndex}`;
         }
@@ -1349,6 +1467,26 @@ function createHashTableMetric(label: string, primary: string, secondary: string
     return root;
 }
 
+function createParametricMetric(label: string, primary: string, secondary: string): HTMLDivElement {
+    const root = document.createElement("div");
+    root.classList.add("parametric-metric");
+
+    const labelElement = document.createElement("span");
+    labelElement.textContent = label;
+
+    const primaryElement = document.createElement("strong");
+    primaryElement.textContent = primary;
+
+    const secondaryElement = document.createElement("em");
+    secondaryElement.textContent = secondary;
+
+    root.appendChild(labelElement);
+    root.appendChild(primaryElement);
+    root.appendChild(secondaryElement);
+
+    return root;
+}
+
 function createInlineLabel(text: string): HTMLSpanElement {
     const element = document.createElement("span");
     element.textContent = text;
@@ -1529,6 +1667,19 @@ function formatHashTablePhase(phase: HashTableInsight["phase"]): string {
             return "Not found";
         default:
             return "Build table";
+    }
+}
+
+function formatParametricPhase(phase: ParametricSearchInsight["phase"]): string {
+    switch (phase) {
+        case "feasible":
+            return "Feasible";
+        case "too-low":
+            return "Too low";
+        case "done":
+            return "Answer found";
+        default:
+            return "Test capacity";
     }
 }
 
