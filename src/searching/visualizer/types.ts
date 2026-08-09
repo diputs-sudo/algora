@@ -170,6 +170,26 @@ export interface HashTableInsight {
     note: string;
 }
 
+export interface ParametricDayLoad {
+    day: number;
+    load: number;
+    packages: number[];
+}
+
+export interface ParametricSearchInsight {
+    phase: "test" | "feasible" | "too-low" | "done";
+    low: number;
+    high: number;
+    candidate: number;
+    daysLimit: number;
+    usedDays: number;
+    best?: number;
+    loads: ParametricDayLoad[];
+    comparison: string;
+    decisionText: string;
+    note: string;
+}
+
 export interface SearchStep {
     type: SearchStepType;
     array: number[];
@@ -193,4 +213,5 @@ export interface SearchStep {
     bitonic?: BitonicSearchInsight;
     fractionalCascading?: FractionalCascadingInsight;
     hashTable?: HashTableInsight;
+    parametric?: ParametricSearchInsight;
 }
