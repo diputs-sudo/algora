@@ -40,6 +40,8 @@ export class SearchVisualizer {
         this.hashTableRoot.classList.add("hash-table-insight", "hidden");
         this.parametricRoot = document.createElement("div");
         this.parametricRoot.classList.add("parametric-insight", "hidden");
+        this.quickselectRoot = document.createElement("div");
+        this.quickselectRoot.classList.add("quickselect-insight", "hidden");
         this.interpolationRoot = document.createElement("div");
         this.interpolationRoot.classList.add("interpolation-insight", "hidden");
         this.workspaceRoot = document.createElement("div");
@@ -67,6 +69,7 @@ export class SearchVisualizer {
         this.container.appendChild(this.fractionalCascadingRoot);
         this.container.appendChild(this.hashTableRoot);
         this.container.appendChild(this.parametricRoot);
+        this.container.appendChild(this.quickselectRoot);
         this.container.appendChild(this.interpolationRoot);
         this.container.appendChild(this.workspaceRoot);
         this.setStepCount(0);
@@ -133,6 +136,7 @@ export class SearchVisualizer {
         this.renderFractionalCascadingInsight(step.fractionalCascading);
         this.renderHashTableInsight(step.hashTable);
         this.renderParametricInsight(step.parametric);
+        this.renderQuickselectInsight(step.quickselect);
         this.renderInterpolationInsight(step.interpolation);
         this.renderWorkspace(step.workspace);
         this.setResult(this.getResultText(step));
@@ -801,6 +805,64 @@ export class SearchVisualizer {
         this.parametricRoot.appendChild(comparison);
         this.parametricRoot.appendChild(note);
     }
+    renderQuickselectInsight(insight) {
+        if (!insight) {
+            this.quickselectRoot.classList.add("hidden");
+            this.quickselectRoot.innerHTML = "";
+            return;
+        }
+        this.quickselectRoot.classList.remove("hidden");
+        this.quickselectRoot.innerHTML = "";
+        const header = document.createElement("div");
+        header.classList.add("quickselect-insight-header");
+        const title = document.createElement("div");
+        title.classList.add("quickselect-insight-title");
+        title.textContent = "Partition Workspace";
+        const phase = document.createElement("div");
+        phase.classList.add("quickselect-phase", `quickselect-phase-${insight.phase}`);
+        phase.textContent = formatQuickselectPhase(insight.phase);
+        header.appendChild(title);
+        header.appendChild(phase);
+        const stage = document.createElement("div");
+        stage.classList.add("quickselect-stage");
+        stage.style.setProperty("--quickselect-count", String(Math.min(Math.max(insight.items.length, 1), 20)));
+        insight.items.forEach(item => {
+            const cell = document.createElement("div");
+            cell.classList.add("quickselect-item", `quickselect-item-${item.state}`);
+            if (item.index === insight.kthIndex) {
+                cell.classList.add("is-kth");
+            }
+            const index = document.createElement("span");
+            index.textContent = String(item.index);
+            const value = document.createElement("strong");
+            value.textContent = String(item.value);
+            const label = document.createElement("em");
+            label.textContent = formatQuickselectItemLabel(item.index, insight);
+            cell.appendChild(index);
+            cell.appendChild(value);
+            cell.appendChild(label);
+            stage.appendChild(cell);
+        });
+        const metrics = document.createElement("div");
+        metrics.classList.add("quickselect-metrics");
+        metrics.appendChild(createQuickselectMetric("K target", `index ${insight.kthIndex}`, "zero-based rank"));
+        metrics.appendChild(createQuickselectMetric("Window", `${insight.low} to ${insight.high}`, "active candidates"));
+        metrics.appendChild(createQuickselectMetric("Pivot", `${insight.pivotValue}`, `index ${insight.pivotIndex}`));
+        metrics.appendChild(createQuickselectMetric("Boundary", `index ${insight.storeIndex}`, "next smaller slot"));
+        const comparison = document.createElement("div");
+        comparison.classList.add("quickselect-comparison", `quickselect-comparison-${insight.phase}`);
+        comparison.appendChild(createInlineLabel("Decision"));
+        comparison.appendChild(createInlineStrong(insight.comparison));
+        comparison.appendChild(createInlineEm(insight.decisionText));
+        const note = document.createElement("p");
+        note.classList.add("quickselect-note");
+        note.textContent = insight.note;
+        this.quickselectRoot.appendChild(header);
+        this.quickselectRoot.appendChild(stage);
+        this.quickselectRoot.appendChild(metrics);
+        this.quickselectRoot.appendChild(comparison);
+        this.quickselectRoot.appendChild(note);
+    }
     renderWorkspace(workspace) {
         if (!workspace || workspace.rows.length === 0) {
             this.container.classList.remove("has-workspace");
@@ -847,6 +909,9 @@ export class SearchVisualizer {
     getResultText(step) {
         if (step.parametric?.phase === "done") {
             return `Answer ${step.parametric.best ?? step.parametric.candidate}`;
+        }
+        if (step.quickselect?.phase === "found") {
+            return `Value ${step.resultIndex}`;
         }
         if (step.type === "found") {
             return `Found at index ${step.resultIndex}`;
@@ -1109,6 +1174,20 @@ function createParametricMetric(label, primary, secondary) {
     root.appendChild(secondaryElement);
     return root;
 }
+function createQuickselectMetric(label, primary, secondary) {
+    const root = document.createElement("div");
+    root.classList.add("quickselect-metric");
+    const labelElement = document.createElement("span");
+    labelElement.textContent = label;
+    const primaryElement = document.createElement("strong");
+    primaryElement.textContent = primary;
+    const secondaryElement = document.createElement("em");
+    secondaryElement.textContent = secondary;
+    root.appendChild(labelElement);
+    root.appendChild(primaryElement);
+    root.appendChild(secondaryElement);
+    return root;
+}
 function createInlineLabel(text) {
     const element = document.createElement("span");
     element.textContent = text;
@@ -1277,6 +1356,40 @@ function formatParametricPhase(phase) {
         default:
             return "Test capacity";
     }
+}
+function formatQuickselectPhase(phase) {
+    switch (phase) {
+        case "partition":
+            return "Partition";
+        case "pivot":
+            return "Pivot placed";
+        case "left":
+            return "Search left";
+        case "right":
+            return "Search right";
+        case "found":
+            return "Found";
+        default:
+            return "Choose pivot";
+    }
+}
+function formatQuickselectItemLabel(index, insight) {
+    if (index === insight.kthIndex) {
+        return "k";
+    }
+    if (index === insight.pivotIndex) {
+        return "pivot";
+    }
+    if (index === insight.scanIndex) {
+        return "scan";
+    }
+    if (index === insight.storeIndex) {
+        return "store";
+    }
+    if (index < insight.low || index > insight.high) {
+        return "out";
+    }
+    return "candidate";
 }
 function formatHashBucketContents(insight) {
     const bucket = insight.buckets[insight.probeIndex];
