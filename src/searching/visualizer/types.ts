@@ -190,6 +190,27 @@ export interface ParametricSearchInsight {
     note: string;
 }
 
+export interface QuickselectItemState {
+    index: number;
+    value: number;
+    state: "outside" | "candidate" | "less" | "scan" | "store" | "pivot" | "found";
+}
+
+export interface QuickselectInsight {
+    phase: "choose" | "partition" | "pivot" | "left" | "right" | "found";
+    items: QuickselectItemState[];
+    low: number;
+    high: number;
+    kthIndex: number;
+    pivotIndex: number;
+    pivotValue: number;
+    storeIndex: number;
+    scanIndex?: number;
+    comparison: string;
+    decisionText: string;
+    note: string;
+}
+
 export interface SearchStep {
     type: SearchStepType;
     array: number[];
@@ -214,4 +235,5 @@ export interface SearchStep {
     fractionalCascading?: FractionalCascadingInsight;
     hashTable?: HashTableInsight;
     parametric?: ParametricSearchInsight;
+    quickselect?: QuickselectInsight;
 }
