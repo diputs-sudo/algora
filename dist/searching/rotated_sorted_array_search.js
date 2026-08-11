@@ -1,0 +1,83 @@
+import { createRotatedSortedArraySearchInitialStep, defaultRotatedSortedArray, rotatedSortedArraySearch } from "./algorithms/rotated_sorted_array.js";
+import { SearchController } from "./visualizer/searchController.js";
+import { SearchVisualizer } from "./visualizer/searchVisualizer.js";
+import { initCodeLoader } from "../ui/codeLoader.js";
+import { initLearnMore } from "../ui/navigation.js";
+function parseDataset(value) {
+    const values = value
+        .split(",")
+        .map(item => Number(item.trim()))
+        .filter(item => !Number.isNaN(item));
+    return normalizeRotatedSortedArray(values);
+}
+function normalizeRotatedSortedArray(values) {
+    const unique = Array.from(new Set(values));
+    if (unique.length < 3) {
+        return [...defaultRotatedSortedArray];
+    }
+    const sorted = unique.sort((a, b) => a - b);
+    const pivot = Math.max(1, Math.floor(sorted.length * 0.45));
+    return [...sorted.slice(pivot), ...sorted.slice(0, pivot)];
+}
+function generateRotatedSortedArray(size) {
+    const values = new Set();
+    while (values.size < size) {
+        values.add(Math.floor(Math.random() * 120) + 1);
+    }
+    return normalizeRotatedSortedArray(Array.from(values));
+}
+document.addEventListener("DOMContentLoaded", () => {
+    initLearnMore();
+    initCodeLoader("array_search", "rotated_sorted_array_search", {
+        rootSelector: "#standardCodeSection",
+        defaultLanguage: "python",
+        moreInfoSelector: "#standardMoreInfo"
+    });
+    initCodeLoader("array_search", "rotated_sorted_array_search_production", {
+        rootSelector: "#productionCodeSection",
+        defaultLanguage: "python"
+    });
+    const visualizer = new SearchVisualizer("searchGraphContainer");
+    let dataset = [...defaultRotatedSortedArray];
+    let target = 16;
+    let controller = new SearchController(rotatedSortedArraySearch(dataset, target), visualizer);
+    visualizer.render(createRotatedSortedArraySearchInitialStep(dataset, target));
+    const datasetInput = document.getElementById("datasetInput");
+    const targetInput = document.getElementById("targetInput");
+    const generateBtn = document.getElementById("generateBtn");
+    const playBtn = document.getElementById("playBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const stepBtn = document.getElementById("stepBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const speedRange = document.getElementById("speedRange");
+    datasetInput.value = dataset.join(",");
+    targetInput.value = String(target);
+    function reset() {
+        dataset = parseDataset(datasetInput.value);
+        target = Number(targetInput.value);
+        if (Number.isNaN(target)) {
+            target = dataset[Math.floor(dataset.length * 0.68)];
+            targetInput.value = String(target);
+        }
+        datasetInput.value = dataset.join(",");
+        controller.reset(rotatedSortedArraySearch(dataset, target), createRotatedSortedArraySearchInitialStep(dataset, target));
+        controller.setSpeed(Number(speedRange.value));
+    }
+    generateBtn.addEventListener("click", () => {
+        dataset = generateRotatedSortedArray(13);
+        target = dataset[Math.floor(dataset.length * 0.68)];
+        datasetInput.value = dataset.join(",");
+        targetInput.value = String(target);
+        reset();
+    });
+    datasetInput.addEventListener("change", reset);
+    targetInput.addEventListener("change", reset);
+    playBtn.addEventListener("click", () => controller.play());
+    pauseBtn.addEventListener("click", () => controller.pause());
+    stepBtn.addEventListener("click", () => controller.step());
+    resetBtn.addEventListener("click", reset);
+    speedRange.addEventListener("input", () => {
+        controller.setSpeed(Number(speedRange.value));
+    });
+    controller.setSpeed(Number(speedRange.value));
+});
