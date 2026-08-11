@@ -119,6 +119,25 @@ export interface SentinelLinearInsight {
     note: string;
 }
 
+
+export interface RotatedArraySearchInsight {
+    phase: "identify" | "keep-left" | "keep-right" | "found" | "miss";
+    low: number;
+    mid: number;
+    high: number;
+    sortedSide: "left" | "right" | "unknown";
+    keepSide: "left" | "right" | "none" | "unknown";
+    leftRange?: [number, number];
+    rightRange?: [number, number];
+    lowValue?: number;
+    midValue?: number;
+    highValue?: number;
+    target: number;
+    comparison: string;
+    decisionText: string;
+    note: string;
+}
+
 export interface BitonicSearchInsight {
     phase: "peak" | "left" | "right" | "found" | "miss";
     left: number;
@@ -231,6 +250,7 @@ export interface SearchStep {
     rangeSearch?: RangeSearchInsight;
     jumpSearch?: JumpSearchInsight;
     sentinelLinear?: SentinelLinearInsight;
+    rotatedArray?: RotatedArraySearchInsight;
     bitonic?: BitonicSearchInsight;
     fractionalCascading?: FractionalCascadingInsight;
     hashTable?: HashTableInsight;
