@@ -32,6 +32,8 @@ export class SearchVisualizer {
         this.jumpSearchRoot.classList.add("jump-search-insight", "hidden");
         this.sentinelLinearRoot = document.createElement("div");
         this.sentinelLinearRoot.classList.add("sentinel-linear-insight", "hidden");
+        this.rotatedArrayRoot = document.createElement("div");
+        this.rotatedArrayRoot.classList.add("rotated-array-insight", "hidden");
         this.bitonicRoot = document.createElement("div");
         this.bitonicRoot.classList.add("bitonic-insight", "hidden");
         this.fractionalCascadingRoot = document.createElement("div");
@@ -65,6 +67,7 @@ export class SearchVisualizer {
         this.container.appendChild(this.rangeSearchRoot);
         this.container.appendChild(this.jumpSearchRoot);
         this.container.appendChild(this.sentinelLinearRoot);
+        this.container.appendChild(this.rotatedArrayRoot);
         this.container.appendChild(this.bitonicRoot);
         this.container.appendChild(this.fractionalCascadingRoot);
         this.container.appendChild(this.hashTableRoot);
@@ -132,6 +135,7 @@ export class SearchVisualizer {
         this.renderRangeSearchInsight(step.rangeSearch);
         this.renderJumpSearchInsight(step.jumpSearch);
         this.renderSentinelLinearInsight(step.sentinelLinear);
+        this.renderRotatedArrayInsight(step.rotatedArray, step.array);
         this.renderBitonicInsight(step.bitonic, step.array, step.target);
         this.renderFractionalCascadingInsight(step.fractionalCascading);
         this.renderHashTableInsight(step.hashTable);
@@ -863,6 +867,82 @@ export class SearchVisualizer {
         this.quickselectRoot.appendChild(comparison);
         this.quickselectRoot.appendChild(note);
     }
+    renderRotatedArrayInsight(insight, array = []) {
+        if (!insight) {
+            this.rotatedArrayRoot.classList.add("hidden");
+            this.rotatedArrayRoot.innerHTML = "";
+            return;
+        }
+        this.rotatedArrayRoot.classList.remove("hidden");
+        this.rotatedArrayRoot.innerHTML = "";
+        const header = document.createElement("div");
+        header.classList.add("rotated-array-header");
+        const title = document.createElement("div");
+        title.classList.add("rotated-array-title");
+        title.textContent = "Rotation Decision Workspace";
+        const phase = document.createElement("div");
+        phase.classList.add("rotated-array-phase", `rotated-array-phase-${insight.phase}`);
+        phase.textContent = formatRotatedPhase(insight.phase);
+        header.appendChild(title);
+        header.appendChild(phase);
+        const track = document.createElement("div");
+        track.classList.add("rotated-array-track");
+        track.style.setProperty("--rotated-count", String(Math.min(Math.max(array.length, 1), 20)));
+        array.forEach((value, index) => {
+            const cell = document.createElement("div");
+            cell.classList.add("rotated-array-cell");
+            if (index >= insight.low && index <= insight.high) {
+                cell.classList.add("in-window");
+            }
+            if (index === insight.low || index === insight.mid || index === insight.high) {
+                cell.classList.add("boundary");
+            }
+            if (index === insight.mid) {
+                cell.classList.add("mid");
+            }
+            if (insight.sortedSide === "left" && insight.leftRange && index >= insight.leftRange[0] && index <= insight.leftRange[1]) {
+                cell.classList.add("sorted-side");
+            }
+            if (insight.sortedSide === "right" && insight.rightRange && index >= insight.rightRange[0] && index <= insight.rightRange[1]) {
+                cell.classList.add("sorted-side");
+            }
+            if (insight.keepSide === "left" && index >= insight.low && index < insight.mid) {
+                cell.classList.add("kept-side");
+            }
+            if (insight.keepSide === "right" && index > insight.mid && index <= insight.high) {
+                cell.classList.add("kept-side");
+            }
+            const indexLabel = document.createElement("span");
+            indexLabel.textContent = String(index);
+            const valueLabel = document.createElement("strong");
+            valueLabel.textContent = String(value);
+            const role = document.createElement("em");
+            role.textContent = formatRotatedCellRole(index, insight);
+            cell.appendChild(indexLabel);
+            cell.appendChild(valueLabel);
+            cell.appendChild(role);
+            track.appendChild(cell);
+        });
+        const metrics = document.createElement("div");
+        metrics.classList.add("rotated-array-metrics");
+        metrics.appendChild(createRotatedMetric("Sorted half", formatRotatedSide(insight.sortedSide), "normal order"));
+        metrics.appendChild(createRotatedMetric("Keep", formatRotatedSide(insight.keepSide), "next window"));
+        metrics.appendChild(createRotatedMetric("Window", `${insight.low} to ${insight.high}`, "candidate range"));
+        metrics.appendChild(createRotatedMetric("Target", String(insight.target), "wanted value"));
+        const comparison = document.createElement("div");
+        comparison.classList.add("rotated-array-comparison", `rotated-array-comparison-${insight.phase}`);
+        comparison.appendChild(createInlineLabel("Decision"));
+        comparison.appendChild(createInlineStrong(insight.comparison));
+        comparison.appendChild(createInlineEm(insight.decisionText));
+        const note = document.createElement("p");
+        note.classList.add("rotated-array-note");
+        note.textContent = insight.note;
+        this.rotatedArrayRoot.appendChild(header);
+        this.rotatedArrayRoot.appendChild(track);
+        this.rotatedArrayRoot.appendChild(metrics);
+        this.rotatedArrayRoot.appendChild(comparison);
+        this.rotatedArrayRoot.appendChild(note);
+    }
     renderWorkspace(workspace) {
         if (!workspace || workspace.rows.length === 0) {
             this.container.classList.remove("has-workspace");
@@ -921,6 +1001,63 @@ export class SearchVisualizer {
         }
         return `Target ${step.target}`;
     }
+}
+function formatRotatedPhase(phase) {
+    const labels = {
+        identify: "Identify sorted half",
+        "keep-left": "Keep left",
+        "keep-right": "Keep right",
+        found: "Found",
+        miss: "Miss"
+    };
+    return labels[phase];
+}
+function formatRotatedSide(side) {
+    if (side === "left")
+        return "Left half";
+    if (side === "right")
+        return "Right half";
+    if (side === "none")
+        return "None";
+    return "Deciding";
+}
+function formatRotatedCellRole(index, insight) {
+    if (index === insight.low)
+        return "low";
+    if (index === insight.mid)
+        return insight.phase === "found" ? "found" : "mid";
+    if (index === insight.high)
+        return "high";
+    if (insight.sortedSide === "left" && insight.leftRange && index >= insight.leftRange[0] && index <= insight.leftRange[1]) {
+        return "sorted";
+    }
+    if (insight.sortedSide === "right" && insight.rightRange && index >= insight.rightRange[0] && index <= insight.rightRange[1]) {
+        return "sorted";
+    }
+    if (insight.keepSide === "left" && index >= insight.low && index < insight.mid) {
+        return "keep";
+    }
+    if (insight.keepSide === "right" && index > insight.mid && index <= insight.high) {
+        return "keep";
+    }
+    if (index < insight.low || index > insight.high) {
+        return "out";
+    }
+    return "";
+}
+function createRotatedMetric(label, value, detail) {
+    const root = document.createElement("div");
+    root.classList.add("rotated-array-metric");
+    const labelElement = document.createElement("span");
+    labelElement.textContent = label;
+    const valueElement = document.createElement("strong");
+    valueElement.textContent = value;
+    const detailElement = document.createElement("em");
+    detailElement.textContent = detail;
+    root.appendChild(labelElement);
+    root.appendChild(valueElement);
+    root.appendChild(detailElement);
+    return root;
 }
 function createMap(label, start, end, marker, percent) {
     const root = document.createElement("div");
