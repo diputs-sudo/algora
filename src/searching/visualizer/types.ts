@@ -85,12 +85,20 @@ export interface FibonacciSearchInsight {
 
 export interface RangeSearchInsight {
     title: string;
+    kind?: "exponential" | "galloping";
     phase: "expand" | "binary" | "found" | "miss";
     lower: number;
     probe: number;
     upper: number;
     jump?: number;
     nextJump?: number;
+    sequence?: number[];
+    previousBound?: number;
+    currentBound?: number;
+    discoveredLow?: number;
+    discoveredHigh?: number;
+    transitionLabel?: string;
+    probeValue?: number | string;
     comparison?: string;
     decisionText: string;
     note: string;
