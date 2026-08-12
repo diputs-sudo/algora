@@ -1,5 +1,3 @@
-/* Legacy algorithm page */
-
 header {
   text-align: center;
   padding: 4rem 1rem 2rem;
@@ -71,8 +69,6 @@ header p {
   margin-bottom: 0.6rem;
   color: #c9d1d9;
 }
-
-/* New algorithm page */
 
 .bubble-page,
 .algorithm-page {
@@ -1476,6 +1472,11 @@ header p {
   color: #fef08a;
 }
 
+.range-search-phase-miss {
+  border-color: rgba(248, 113, 113, 0.34);
+  color: #fecaca;
+}
+
 .fibonacci-number-strip,
 .fibonacci-equation,
 .range-search-metrics {
@@ -1486,6 +1487,57 @@ header p {
 
 .range-search-metrics {
   grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+
+.range-search-sequence {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.65rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid rgba(140, 188, 255, 0.1);
+  background: rgba(8, 13, 20, 0.44);
+}
+
+.range-search-sequence-label {
+  color: #91a0b2;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.range-search-sequence-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.38rem;
+  align-items: center;
+}
+
+.range-search-sequence-item {
+  display: grid;
+  place-items: center;
+  min-width: 2.3rem;
+  min-height: 2rem;
+  padding: 0.25rem 0.45rem;
+  border-radius: 7px;
+  border: 1px solid rgba(230, 237, 243, 0.07);
+  background: rgba(22, 27, 34, 0.72);
+  color: #c7d0da;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.range-search-sequence-item.active {
+  border-color: rgba(250, 204, 21, 0.44);
+  background: rgba(250, 204, 21, 0.14);
+  color: #fef08a;
+}
+
+.range-search-sequence-item.next {
+  border-color: rgba(140, 188, 255, 0.34);
+  background: rgba(140, 188, 255, 0.12);
+  color: #bfdbfe;
 }
 
 .fibonacci-metric,
@@ -2551,6 +2603,8 @@ header p {
   border-style: dashed;
 }
 
+
+
 .hash-table-bucket-collision {
   border-color: rgba(250, 204, 21, 0.45);
   background: rgba(250, 204, 21, 0.14);
@@ -3439,6 +3493,34 @@ header p {
   text-align: right;
 }
 
+
+.interpolation-formula {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(140, 188, 255, 0.1);
+  background: rgba(8, 13, 20, 0.48);
+}
+
+.interpolation-formula span {
+  color: #91a0b2;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.interpolation-formula strong {
+  color: #dce5ef;
+  font-size: 0.84rem;
+  font-weight: 780;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
 .interpolation-map-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3595,6 +3677,7 @@ header p {
     grid-template-columns: 1fr;
   }
 
+
   .interpolation-map-grid {
     grid-template-columns: 1fr;
   }
@@ -3699,6 +3782,7 @@ header p {
     gap: 0.25rem;
   }
 
+  .interpolation-formula,
   .interpolation-estimate {
     grid-template-columns: 1fr;
   }
