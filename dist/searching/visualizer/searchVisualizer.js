@@ -178,12 +178,20 @@ export class SearchVisualizer {
         header.classList.add("interpolation-insight-header");
         const title = document.createElement("div");
         title.classList.add("interpolation-insight-title");
-        title.textContent = "How the Probe is Estimated";
+        title.textContent = "Position Estimator";
         const summary = document.createElement("div");
         summary.classList.add("interpolation-insight-summary");
         summary.textContent = `Same position, different scale: ${formatPercentPrecise(ratioPercent)}.`;
         header.appendChild(title);
         header.appendChild(summary);
+        const formula = document.createElement("div");
+        formula.classList.add("interpolation-formula");
+        const formulaLabel = document.createElement("span");
+        formulaLabel.textContent = "Formula";
+        const formulaText = document.createElement("strong");
+        formulaText.textContent = `pos = ${insight.low} + floor(((${insight.target} - ${insight.lowValue}) / (${insight.highValue} - ${insight.lowValue})) * (${insight.high} - ${insight.low})) = ${insight.probe}`;
+        formula.appendChild(formulaLabel);
+        formula.appendChild(formulaText);
         const estimate = document.createElement("div");
         estimate.classList.add("interpolation-estimate");
         estimate.appendChild(createEstimateCell("Value position", formatFraction(insight.valueDistance, insight.valueSpan), formatPercentPrecise(ratioPercent)));
@@ -197,6 +205,7 @@ export class SearchVisualizer {
         note.classList.add("interpolation-note");
         note.textContent = insight.note ?? `Target sits ${formatPercentPrecise(ratioPercent)} through the values, so the next probe lands at index ${insight.probe}.`;
         this.interpolationRoot.appendChild(header);
+        this.interpolationRoot.appendChild(formula);
         this.interpolationRoot.appendChild(estimate);
         this.interpolationRoot.appendChild(maps);
         this.interpolationRoot.appendChild(note);
@@ -229,7 +238,7 @@ export class SearchVisualizer {
         });
         const equation = document.createElement("div");
         equation.classList.add("meta-binary-equation");
-        equation.appendChild(createMetaMetric("Base", formatMetaIndex(insight.baseIndex), "last confirmed smaller"));
+        equation.appendChild(createMetaMetric("Base", formatMetaIndex(insight.baseIndex), "resulting base"));
         equation.appendChild(createMetaMetric("Trying", insight.activeBit > 0 ? `+${insight.activeBit}` : "done", "current bit"));
         equation.appendChild(createMetaMetric("Test", formatMetaIndex(insight.testIndex), insight.testValue === undefined ? "outside array" : `value ${insight.testValue}`));
         equation.appendChild(createMetaMetric("Final check", formatMetaIndex(insight.candidateIndex), "base + 1"));
@@ -370,12 +379,33 @@ export class SearchVisualizer {
         phase.textContent = formatRangePhase(insight.phase);
         header.appendChild(title);
         header.appendChild(phase);
+        const sequence = document.createElement("div");
+        sequence.classList.add("range-search-sequence");
+        const sequenceLabel = document.createElement("div");
+        sequenceLabel.classList.add("range-search-sequence-label");
+        sequenceLabel.textContent = insight.kind === "galloping" ? "Gallop offsets" : "Doubling sequence";
+        sequence.appendChild(sequenceLabel);
+        const sequenceItems = document.createElement("div");
+        sequenceItems.classList.add("range-search-sequence-items");
+        (insight.sequence ?? []).forEach(value => {
+            const item = document.createElement("span");
+            item.classList.add("range-search-sequence-item");
+            if (value === insight.currentBound) {
+                item.classList.add("active");
+            }
+            if (insight.nextJump !== undefined && value === insight.nextJump) {
+                item.classList.add("next");
+            }
+            item.textContent = insight.kind === "galloping" ? `+${value}` : String(value);
+            sequenceItems.appendChild(item);
+        });
+        sequence.appendChild(sequenceItems);
         const metrics = document.createElement("div");
         metrics.classList.add("range-search-metrics");
-        metrics.appendChild(createRangeMetric("Lower", formatSearchIndex(insight.lower), "left edge"));
-        metrics.appendChild(createRangeMetric("Probe", formatSearchIndex(insight.probe), insight.jump === undefined ? "middle" : `jump ${insight.jump}`));
-        metrics.appendChild(createRangeMetric("Upper", formatSearchIndex(insight.upper), "right edge"));
-        metrics.appendChild(createRangeMetric("Next", insight.nextJump === undefined ? "binary" : String(insight.nextJump), insight.phase === "expand" ? "next jump" : "next bound"));
+        metrics.appendChild(createRangeMetric("Previous", formatSearchIndex(insight.previousBound ?? insight.lower), insight.kind === "galloping" ? "last bound" : "lower bound"));
+        metrics.appendChild(createRangeMetric("Current", formatSearchIndex(insight.currentBound ?? insight.probe), insight.probeValue === undefined ? "probe" : `value ${insight.probeValue}`));
+        metrics.appendChild(createRangeMetric("Interval", formatRangeInterval(insight), insight.phase === "expand" ? "not fixed yet" : "discovered"));
+        metrics.appendChild(createRangeMetric("Phase", insight.transitionLabel ?? formatRangePhase(insight.phase), insight.phase === "expand" ? "still growing" : "now narrowing"));
         const comparison = document.createElement("div");
         comparison.classList.add("range-search-comparison", `range-search-comparison-${insight.phase}`);
         comparison.appendChild(createInlineLabel("Decision"));
@@ -385,6 +415,7 @@ export class SearchVisualizer {
         note.classList.add("range-search-note");
         note.textContent = insight.note;
         this.rangeSearchRoot.appendChild(header);
+        this.rangeSearchRoot.appendChild(sequence);
         this.rangeSearchRoot.appendChild(metrics);
         this.rangeSearchRoot.appendChild(comparison);
         this.rangeSearchRoot.appendChild(note);
@@ -438,7 +469,7 @@ export class SearchVisualizer {
         header.classList.add("sentinel-linear-insight-header");
         const title = document.createElement("div");
         title.classList.add("sentinel-linear-insight-title");
-        title.textContent = "Sentinel Guard";
+        title.textContent = "Sentinel State";
         const phase = document.createElement("div");
         phase.classList.add("sentinel-linear-phase", `sentinel-linear-phase-${insight.phase}`);
         phase.textContent = formatSentinelPhase(insight.phase);
@@ -1371,6 +1402,12 @@ function formatFibonacciDirection(direction) {
         default:
             return "Start";
     }
+}
+function formatRangeInterval(insight) {
+    if (insight.discoveredLow !== undefined && insight.discoveredHigh !== undefined) {
+        return `${insight.discoveredLow} to ${insight.discoveredHigh}`;
+    }
+    return `${formatSearchIndex(insight.lower)} to ${formatSearchIndex(insight.upper)}`;
 }
 function formatRangePhase(phase) {
     switch (phase) {
