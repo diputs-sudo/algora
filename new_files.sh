@@ -14,7 +14,7 @@ PASCAL_NAME=$(echo "$NAME" | awk -F'_' '{
     }
 }')
 
-CATEGORY="array_search"
+CATEGORY="graphs"
 
 mkdir -p ".python/$CATEGORY"
 mkdir -p ".c/$CATEGORY"
