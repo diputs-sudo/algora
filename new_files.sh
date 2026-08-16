@@ -16,11 +16,6 @@ PASCAL_NAME=$(echo "$NAME" | awk -F'_' '{
 
 CATEGORY="graphs"
 
-mkdir -p ".python/$CATEGORY"
-mkdir -p ".c/$CATEGORY"
-mkdir -p ".cpp/$CATEGORY"
-mkdir -p ".java/$CATEGORY"
-
 touch "./python/$CATEGORY/${NAME}.py"
 touch "./python/$CATEGORY/${NAME}_production.py"
 
