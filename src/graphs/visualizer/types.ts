@@ -11,6 +11,7 @@ export interface GraphData {
     start: GridPoint;
     target: GridPoint;
     walls: GridPoint[];
+    weights?: Record<string, 0 | 1>;
 }
 
 export interface GraphWorkspaceRow {
@@ -35,6 +36,8 @@ export interface GraphStep {
     stack: string[];
     order: string[];
     path?: string[];
+    edgeWeight?: 0 | 1;
+    distances?: Record<string, number>;
     message: string;
     workspace?: GraphWorkspaceState;
 }
