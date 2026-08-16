@@ -139,6 +139,9 @@ export class GraphVisualizer {
                     cell.classList.add("is-target");
                     cell.textContent = "T";
                 }
+                if (pointKey !== startKey && pointKey !== targetKey && !wallKeys.has(pointKey) && step.graph.weights) {
+                    cell.textContent = String(step.graph.weights[pointKey] ?? 0);
+                }
                 this.gridRoot.appendChild(cell);
             }
         }
