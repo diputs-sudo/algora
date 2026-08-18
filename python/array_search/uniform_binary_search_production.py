@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 
+
 @dataclass(frozen=True)
-
-
 class UniformBinarySearchResult:
     found: bool
     index: int
@@ -10,13 +9,20 @@ class UniformBinarySearchResult:
 
 
 def build_step_table(length):
-    steps = []
-    step = (length + 1) // 2
+    if length <= 0:
+        return []
 
+    largest = 1
+    while largest <= length // 2:
+        largest *= 2
+
+    steps = []
+    step = largest
     while step >= 1:
         steps.append(step)
+        if step == 1:
+            break
         step //= 2
-
     return steps
 
 
@@ -27,24 +33,22 @@ def uniform_binary_search(values, target, *, start=0, stop=None):
     if start < 0 or start > length or end < start or end > length:
         raise ValueError("range must satisfy 0 <= start <= stop <= len(values)")
 
-    steps = build_step_table(end - start)
-    left = start
-    right = end - 1
+    range_length = end - start
+    base = -1
     comparisons = 0
 
-    for _step in steps:
-        if left > right:
-            break
+    for step in build_step_table(range_length):
+        probe = base + step
+        if probe >= range_length:
+            continue
 
-        mid = left + (right - left) // 2
+        index = start + probe
         comparisons += 1
 
-        if values[mid] == target:
-            return UniformBinarySearchResult(True, mid, comparisons)
-
-        if values[mid] < target:
-            left = mid + 1
-        else:
-            right = mid - 1
+        if values[index] == target:
+            return UniformBinarySearchResult(True, index, comparisons)
+        if values[index] < target:
+            base = probe
 
     return UniformBinarySearchResult(False, -1, comparisons)
+
