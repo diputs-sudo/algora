@@ -12,7 +12,7 @@ template <typename Difference>
 Difference highest_power_of_two_below(Difference length) {
     Difference bit = 1;
 
-    while (bit * 2 < length) {
+    while (bit <= length / 2) {
         bit *= 2;
     }
 
@@ -21,10 +21,10 @@ Difference highest_power_of_two_below(Difference length) {
 
 template <typename RandomIt, typename T, typename Compare = std::less<>>
 RandomIt meta_binary_lower_bound(RandomIt first, RandomIt last, const T& target, Compare compare = Compare{}) {
-    using Difference = typename std::iterator_traits<RandomIt>::differenct_type;
-    Difference length = last - first; 
+    using Difference = typename std::iterator_traits<RandomIt>::difference_type;
+    Difference length = last - first;
 
-    if (length == 0) {
+    if (length <= 0) {
         return first;
     }
 
