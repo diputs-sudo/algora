@@ -1,24 +1,21 @@
 def uniform_binary_search(array, target):
-    low = 0
-    high = len(array) - 1
-    steps = []
-    step = (len(array) + 1) // 2
+    if not array:
+        return -1
 
+    largest = 1
+    while largest <= len(array) // 2:
+        largest *= 2
+
+    base = -1
+    step = largest
     while step >= 1:
-        steps.append(step)
+        probe = base + step
+        if probe < len(array):
+            if array[probe] == target:
+                return probe
+            if array[probe] < target:
+                base = probe
         step //= 2
 
-    step_index = 0
-    while low <= high:
-        mid = (low + high) // 2
-
-        if array[mid] == target:
-            return mid
-        if array[mid] < target:
-            low = mid + 1
-        else:
-            high = mid - 1
-
-        step_index += 1
-
     return -1
+
