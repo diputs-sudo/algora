@@ -1,20 +1,17 @@
 public class UniformBinarySearch {
     public static int uniformBinarySearch(int[] array, int target) {
-        int low = 0;
-        int high = array.length - 1;
-        int stepIndex = 0;
+        if (array.length == 0) return -1;
 
-        while (low <= high) {
-            int mid = low + (high - low) / 2;
+        int largest = 1;
+        while (largest <= array.length / 2) largest *= 2;
 
-            if (array[mid] == target) return mid;
-            if (array[mid] < target) {
-                low = mid + 1;
-            } else {
-                high = mid - 1;
-            }
+        int base = -1;
+        for (int step = largest; step >= 1; step /= 2) {
+            int probe = base + step;
+            if (probe >= array.length) continue;
 
-            stepIndex++;
+            if (array[probe] == target) return probe;
+            if (array[probe] < target) base = probe;
         }
 
         return -1;
