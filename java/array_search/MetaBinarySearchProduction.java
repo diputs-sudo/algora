@@ -52,7 +52,7 @@ public final class MetaBinarySearchProduction {
     private static int highestPowerOfTwoBelow(int length) {
         int bit = 1;
 
-        while (bit * 2 < length) {
+        while (bit <= length / 2) {
             bit *= 2;
         }
 
