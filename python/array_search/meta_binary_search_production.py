@@ -11,7 +11,7 @@ class MetaBinarySearchResult:
 def _highest_power_of_two_below(length):
     bit = 1 
 
-    while bit * 2 < length: 
+    while bit <= length // 2:
         bit *= 2
 
     return bit 
