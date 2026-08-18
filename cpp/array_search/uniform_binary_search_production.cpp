@@ -12,11 +12,15 @@ struct UniformBinarySearchResult {
 
 inline std::vector<std::ptrdiff_t> build_uniform_step_table(std::ptrdiff_t length) {
     std::vector<std::ptrdiff_t> steps;
+    if (length <= 0) return steps;
 
-    for (std::ptrdiff_t step = (length + 1) / 2; step >= 1; step /= 2) {
+    std::ptrdiff_t largest = 1;
+    while (largest <= length / 2) largest *= 2;
+
+    for (std::ptrdiff_t step = largest; step >= 1; step /= 2) {
         steps.push_back(step);
+        if (step == 1) break;
     }
-
     return steps;
 }
 
@@ -28,33 +32,22 @@ UniformBinarySearchResult<RandomIt> uniform_binary_search(
     Compare compare = Compare{}
 ) {
     using Difference = typename std::iterator_traits<RandomIt>::difference_type;
-
     const Difference length = last - first;
     const std::vector<Difference> steps = build_uniform_step_table(length);
-    Difference left = 0;
-    Difference right = length - 1;
+    Difference base = -1;
     std::size_t comparisons = 0;
 
     for (Difference step : steps) {
-        (void)step;
+        const Difference probe = base + step;
+        if (probe >= length) continue;
 
-        if (left > right) {
-            break;
-        }
-
-        Difference mid = left + (right - left) / 2;
-        RandomIt probe = first + mid;
+        RandomIt position = first + probe;
         comparisons += 1;
 
-        if (!compare(*probe, target) && !compare(target, *probe)) {
-            return {true, probe, comparisons};
+        if (!compare(*position, target) && !compare(target, *position)) {
+            return {true, position, comparisons};
         }
-
-        if (compare(*probe, target)) {
-            left = mid + 1;
-        } else {
-            right = mid - 1;
-        }
+        if (compare(*position, target)) base = probe;
     }
 
     return {false, last, comparisons};
