@@ -139,7 +139,10 @@ export class GraphVisualizer {
                     cell.classList.add("is-target");
                     cell.textContent = "T";
                 }
-                if (pointKey !== startKey && pointKey !== targetKey && !wallKeys.has(pointKey) && step.graph.weights) {
+                if (pointKey !== startKey && pointKey !== targetKey && !wallKeys.has(pointKey) && step.graph.costs) {
+                    cell.textContent = String(step.graph.costs[pointKey] ?? 1);
+                }
+                else if (pointKey !== startKey && pointKey !== targetKey && !wallKeys.has(pointKey) && step.graph.weights) {
                     cell.textContent = String(step.graph.weights[pointKey] ?? 0);
                 }
                 this.gridRoot.appendChild(cell);
