@@ -9,7 +9,6 @@ public final class UniformBinarySearchProduction {
         if (values == null) {
             throw new IllegalArgumentException("values must not be null");
         }
-
         return search(values, target, 0, values.length);
     }
 
@@ -17,52 +16,29 @@ public final class UniformBinarySearchProduction {
         if (values == null) {
             throw new IllegalArgumentException("values must not be null");
         }
-
         validateRange(values.length, start, stop);
 
-        int[] steps = buildStepTable(stop - start);
-        int left = start;
-        int right = stop - 1;
+        int rangeLength = stop - start;
+        int largest = 1;
+        while (largest <= rangeLength / 2) largest *= 2;
+
+        int base = -1;
         int comparisons = 0;
 
-        for (int ignoredStep : steps) {
-            if (left > right) {
-                break;
-            }
+        for (int step = rangeLength == 0 ? 0 : largest; step >= 1; step /= 2) {
+            int probe = base + step;
+            if (probe >= rangeLength) continue;
 
-            int mid = left + (right - left) / 2;
+            int index = start + probe;
             comparisons += 1;
 
-            if (values[mid] == target) {
-                return new SearchResult(true, mid, comparisons);
+            if (values[index] == target) {
+                return new SearchResult(true, index, comparisons);
             }
-
-            if (values[mid] < target) {
-                left = mid + 1;
-            } else {
-                right = mid - 1;
-            }
+            if (values[index] < target) base = probe;
         }
 
         return new SearchResult(false, -1, comparisons);
-    }
-
-    private static int[] buildStepTable(int length) {
-        int count = 0;
-
-        for (int step = (length + 1) / 2; step >= 1; step /= 2) {
-            count += 1;
-        }
-
-        int[] steps = new int[count];
-        int index = 0;
-
-        for (int step = (length + 1) / 2; step >= 1; step /= 2) {
-            steps[index] = step;
-            index += 1;
-        }
-
-        return steps;
     }
 
     private static void validateRange(int length, int start, int stop) {
