@@ -15,7 +15,7 @@ static const unsigned char *item_at(const void *base, size_t width, size_t index
 static size_t highest_power_of_two_below(size_t length) {
     size_t bit = 1;
 
-    while (bit * 2 < length) {
+    while (bit <= length / 2) {
         bit *= 2;
     }
 
