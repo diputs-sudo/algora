@@ -866,6 +866,89 @@ header p {
   min-height: 42px;
 }
 
+.astar-mode-controls {
+  display: flex;
+  align-items: end;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  padding-top: 0.2rem;
+}
+
+.astar-mode-label,
+.astar-weight-control > span {
+  color: #b3bdc9;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.astar-mode-label {
+  align-self: center;
+  margin-right: 0.15rem;
+}
+
+.astar-mode-buttons {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.astar-mode-buttons button {
+  min-height: 42px;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid rgba(140, 188, 255, 0.12);
+  border-radius: 8px;
+  background: #111723;
+  color: #b3bdc9;
+  font: inherit;
+  font-size: 0.86rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.astar-mode-buttons button:hover,
+.astar-mode-buttons button:focus-visible {
+  border-color: rgba(140, 188, 255, 0.42);
+  background: #172235;
+  color: #e6edf3;
+  outline: none;
+}
+
+.astar-mode-buttons button.active {
+  border-color: rgba(140, 188, 255, 0.58);
+  background: rgba(78, 161, 255, 0.16);
+  color: #e6edf3;
+}
+
+.astar-weight-control {
+  display: flex !important;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+  min-width: 5.2rem;
+}
+
+.astar-weight-control input {
+  box-sizing: border-box;
+  min-height: 42px;
+  width: 5.2rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid rgba(140, 188, 255, 0.12);
+  border-radius: 8px;
+  background: #111723;
+  color: #e6edf3;
+  font: inherit;
+  outline: none;
+}
+
+.astar-weight-control input:focus {
+  border-color: rgba(140, 188, 255, 0.42);
+}
+
+.astar-weight-control input:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 .graph-visualizer.visualizer-container {
   min-height: 0;
   padding: 1.1rem;
@@ -4120,6 +4203,26 @@ header p {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto auto;
     gap: 0.5rem;
+  }
+
+  .astar-mode-controls {
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .astar-mode-label {
+    width: 100%;
+  }
+
+  .astar-mode-buttons {
+    flex: 1;
+  }
+
+  .astar-mode-buttons button {
+    flex: 1;
+    padding-right: 0.55rem;
+    padding-left: 0.55rem;
+    font-size: 0.8rem;
   }
 
   .grid-edit-controls select {
