@@ -8,8 +8,12 @@ export class SearchController {
         this.visualizer = visualizer;
         this.visualizer.resetStepCount();
     }
-    setSpeed(ms) {
-        this.speed = ms;
+    setSpeed(speedValue) {
+        this.speed = Math.max(1, 1300 - speedValue);
+        if (this.isRunning) {
+            this.pause();
+            this.play();
+        }
     }
     play() {
         if (this.isRunning)
