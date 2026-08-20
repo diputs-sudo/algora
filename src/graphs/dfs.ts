@@ -2,6 +2,7 @@ import { depthFirstSearch, createDfsInitialStep } from "./algorithms/dfs.js";
 import { GraphController } from "./visualizer/graphController.js";
 import { GraphData } from "./visualizer/types.js";
 import { GraphVisualizer, GridEditMode } from "./visualizer/graphVisualizer.js";
+import { updateGrid } from "./visualizer/gridEditor.js";
 import { createClusterGrid } from "./visualizer/gridGenerator.js";
 import { initCodeLoader } from "../ui/codeLoader.js";
 import { initLearnMore } from "../ui/navigation.js";
@@ -54,37 +55,8 @@ const sampleGrids: GraphData[] = [
     }
 ];
 
-function pointKey(point: { row: number; col: number }): string {
-    return `${point.row},${point.col}`;
-}
-
 function createRandomGrid(width = 10, height = 7): GraphData {
     return createClusterGrid(width, height, { row: height - 1, col: 0 }, { row: 0, col: width - 1 });
-}
-
-function updateGrid(graph: GraphData, point: { row: number; col: number }, mode: GridEditMode): GraphData {
-    const pointKeyValue = pointKey(point);
-    const startKey = pointKey(graph.start);
-    const targetKey = pointKey(graph.target);
-    const isWall = graph.walls.some(wall => pointKey(wall) === pointKeyValue);
-    const walls = graph.walls.filter(wall => pointKey(wall) !== pointKeyValue);
-
-    if (mode === "wall") {
-        if (!isWall && pointKeyValue !== startKey && pointKeyValue !== targetKey) {
-            walls.push(point);
-        }
-        return { ...graph, walls };
-    }
-
-    if ((mode === "start" && pointKeyValue === targetKey) || (mode === "target" && pointKeyValue === startKey)) {
-        return graph;
-    }
-
-    const nextPoint = { row: point.row, col: point.col };
-    const nextWalls = walls.filter(wall => pointKey(wall) !== pointKeyValue);
-    return mode === "start"
-        ? { ...graph, start: nextPoint, walls: nextWalls }
-        : { ...graph, target: nextPoint, walls: nextWalls };
 }
 
 document.addEventListener("DOMContentLoaded", () => {
