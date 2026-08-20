@@ -16,8 +16,13 @@ export class Controller {
         this.graph.resetMemoryUsage();
     }
 
-    public setSpeed(ms: number) {
-        this.speed = ms;
+    public setSpeed(speedValue: number) {
+        this.speed = Math.max(1, 1050 - speedValue);
+
+        if (this.isRunning) {
+            this.pause();
+            this.play();
+        }
     }
 
     public play() {
