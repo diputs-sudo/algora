@@ -1,6 +1,7 @@
 import { GraphStep, GraphWorkspaceState, GridPoint } from "./types.js";
 
 export type GridEditMode = "wall" | "start" | "target";
+export type GraphWorkspaceMode = "dynamic" | "algorithm";
 
 function key(point: GridPoint): string {
     return `${point.row},${point.col}`;
@@ -23,6 +24,9 @@ export class GraphVisualizer {
     private stepCount = 0;
     private editMode: GridEditMode = "wall";
     private onGridEdit: ((point: GridPoint, mode: GridEditMode) => void) | null = null;
+    private onRender: ((step: GraphStep) => void) | null = null;
+    private pointerDragging = false;
+    private suppressClick = false;
 
     constructor(containerId: string) {
         const element = document.getElementById(containerId);
@@ -87,6 +91,10 @@ export class GraphVisualizer {
         this.container.appendChild(this.gridShell);
         this.container.appendChild(this.workspaceRoot);
 
+        window.addEventListener("pointerup", () => {
+            this.pointerDragging = false;
+        });
+
         this.setStepCount(0);
         this.setVisitCount(0);
     }
@@ -103,6 +111,7 @@ export class GraphVisualizer {
         this.setVisitCount(step.visited.length);
         this.renderGrid(step);
         this.renderWorkspace(step.workspace);
+        this.onRender?.(step);
     }
 
     public setEditMode(mode: GridEditMode) {
@@ -110,8 +119,16 @@ export class GraphVisualizer {
         this.gridRoot.dataset.editMode = mode;
     }
 
+    public setWorkspaceMode(mode: GraphWorkspaceMode) {
+        this.container.dataset.workspaceMode = mode;
+    }
+
     public setGridEditHandler(handler: (point: GridPoint, mode: GridEditMode) => void) {
         this.onGridEdit = handler;
+    }
+
+    public setRenderHandler(handler: (step: GraphStep) => void) {
+        this.onRender = handler;
     }
 
     private renderGrid(step: GraphStep) {
@@ -137,8 +154,11 @@ export class GraphVisualizer {
 
         const wallKeys = new Set(step.graph.walls.map(key));
         const visitedKeys = new Set(step.visited);
+        const secondaryVisitedKeys = new Set(step.secondaryVisited ?? []);
         const stackKeys = new Set(step.stack);
+        const secondaryStackKeys = new Set(step.secondaryStack ?? []);
         const pathKeys = new Set(step.path ?? []);
+        const meetingKeys = new Set(step.meeting ?? []);
         const currentKey = step.current ? key(step.current) : "";
         const inspectedKey = step.inspected ? key(step.inspected) : "";
         const startKey = key(step.graph.start);
@@ -154,7 +174,23 @@ export class GraphVisualizer {
                 cell.tabIndex = 0;
 
                 const edit = () => this.onGridEdit?.({ row, col }, this.editMode);
-                cell.addEventListener("click", edit);
+                cell.addEventListener("click", () => {
+                    if (this.suppressClick) {
+                        this.suppressClick = false;
+                        return;
+                    }
+                    edit();
+                });
+                cell.addEventListener("pointerdown", event => {
+                    if (event.button === 0) {
+                        this.pointerDragging = true;
+                        this.suppressClick = true;
+                        edit();
+                    }
+                });
+                cell.addEventListener("pointerenter", () => {
+                    if (this.pointerDragging) edit();
+                });
                 cell.addEventListener("keydown", event => {
                     if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
@@ -170,12 +206,24 @@ export class GraphVisualizer {
                     cell.classList.add("is-visited");
                 }
 
+                if (secondaryVisitedKeys.has(pointKey)) {
+                    cell.classList.add("is-visited-secondary");
+                }
+
                 if (stackKeys.has(pointKey)) {
                     cell.classList.add("is-stacked");
                 }
 
+                if (secondaryStackKeys.has(pointKey)) {
+                    cell.classList.add("is-stacked-secondary");
+                }
+
                 if (pathKeys.has(pointKey)) {
                     cell.classList.add("is-path");
+                }
+
+                if (meetingKeys.has(pointKey)) {
+                    cell.classList.add("is-meeting");
                 }
 
                 if (pointKey === inspectedKey) {
