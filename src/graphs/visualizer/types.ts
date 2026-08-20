@@ -13,6 +13,7 @@ export interface GraphData {
     walls: GridPoint[];
     weights?: Record<string, 0 | 1>;
     costs?: Record<string, number>;
+    heuristic?: "manhattan" | "euclidean" | "chebyshev" | "octile";
 }
 
 export interface GraphWorkspaceRow {
@@ -34,9 +35,12 @@ export interface GraphStep {
     previous?: GridPoint;
     inspected?: GridPoint;
     visited: string[];
+    secondaryVisited?: string[];
     stack: string[];
+    secondaryStack?: string[];
     order: string[];
     path?: string[];
+    meeting?: string[];
     edgeWeight?: number;
     distances?: Record<string, number>;
     message: string;
