@@ -8,7 +8,10 @@ export function updateGrid(graph, point, mode) {
     const isWall = graph.walls.some(wall => pointKey(wall) === selectedKey);
     const walls = graph.walls.filter(wall => pointKey(wall) !== selectedKey);
     if (mode === "wall") {
-        if (!isWall && selectedKey !== startKey && selectedKey !== targetKey) {
+        if (isWall) {
+            return { ...graph, walls };
+        }
+        if (selectedKey !== startKey && selectedKey !== targetKey) {
             walls.push(point);
         }
         return { ...graph, walls };
