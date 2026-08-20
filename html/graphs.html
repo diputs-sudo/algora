@@ -102,10 +102,10 @@
 
                     <div class="sorting-roadmap-group">
                         <h3>Shortest paths</h3>
-                        <span class="sorting-roadmap-link">
+                        <a href="graphs/dijkstra.html" class="sorting-roadmap-link">
                             <span>Dijkstra</span>
                             <small>Distances, priority queues, and weighted terrain</small>
-                        </span>
+                        </a>
                         <span class="sorting-roadmap-link">
                             <span>A*</span>
                             <small>Cost so far, heuristic estimate, and total score</small>
@@ -118,10 +118,10 @@
                             <span>Bellman-Ford</span>
                             <small>Relaxation passes and negative edge weights</small>
                         </span>
-                        <span class="sorting-roadmap-link">
+                        <a href="graphs/d-star-lite.html" class="sorting-roadmap-link">
                             <span>D* Lite</span>
                             <small>Replanning as the map changes</small>
-                        </span>
+                        </a>
                     </div>
                 </section>
             </section>
@@ -154,7 +154,7 @@
                         </p>
                     </a>
 
-                    <article class="card sorting-card" data-name="Dijkstra" data-speed="2" data-memory="3" data-difficulty="2" data-filters="essential workspace weighted shortest-path">
+                    <a href="graphs/dijkstra.html" class="card sorting-card" data-name="Dijkstra" data-speed="2" data-memory="3" data-difficulty="2" data-filters="essential workspace weighted shortest-path">
                         <h2>Dijkstra</h2>
                         <p class="sorting-card-summary">Shows distance values updating as the priority queue chooses the next cheapest reachable node.</p>
                         <p class="tags">
@@ -163,7 +163,7 @@
                             <span>Weighted Terrain</span>
                             <span>Workspace</span>
                         </p>
-                    </article>
+                    </a>
 
                     <a href="graphs/a-star.html" class="card sorting-card" data-name="A*" data-speed="2" data-memory="3" data-difficulty="3" data-filters="essential workspace weighted heuristic shortest-path">
                         <h2>A*</h2>
@@ -187,7 +187,7 @@
                         </p>
                     </article>
 
-                    <article class="card sorting-card" data-name="Bidirectional BFS" data-speed="1" data-memory="3" data-difficulty="2" data-filters="workspace unweighted frontier">
+                    <a href="graphs/bidirectional-bfs.html" class="card sorting-card" data-name="Bidirectional BFS" data-speed="1" data-memory="3" data-difficulty="2" data-filters="workspace unweighted frontier">
                         <h2>Bidirectional BFS</h2>
                         <p class="sorting-card-summary">Runs two simultaneous frontiers from start and goal so the meeting point becomes the key visual moment.</p>
                         <p class="tags">
@@ -196,7 +196,7 @@
                             <span>Two Frontiers</span>
                             <span>Workspace</span>
                         </p>
-                    </article>
+                    </a>
 
                     <a href="graphs/zero-one-bfs.html" class="card sorting-card" data-name="0-1 BFS" data-speed="1" data-memory="3" data-difficulty="3" data-filters="workspace weighted shortest-path deque">
                         <h2>0-1 BFS</h2>
@@ -253,7 +253,7 @@
                         </p>
                     </article>
 
-                    <article class="card sorting-card" data-name="D* Lite" data-speed="3" data-memory="3" data-difficulty="5" data-filters="workspace heuristic dynamic advanced">
+                    <a href="graphs/d-star-lite.html" class="card sorting-card" data-name="D* Lite" data-speed="3" data-memory="3" data-difficulty="5" data-filters="workspace heuristic dynamic advanced">
                         <h2>D* Lite</h2>
                         <p class="sorting-card-summary">Centers the dynamic environment: obstacles change, priorities update, and the path repairs instead of restarting.</p>
                         <p class="tags">
@@ -262,7 +262,7 @@
                             <span>Replanning</span>
                             <span>Workspace</span>
                         </p>
-                    </article>
+                    </a>
 
                     <article class="card sorting-card" data-name="Jump Point Search" data-speed="2" data-memory="3" data-difficulty="5" data-filters="workspace heuristic grid advanced">
                         <h2>Jump Point Search</h2>
