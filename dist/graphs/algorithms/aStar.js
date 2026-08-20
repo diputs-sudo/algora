@@ -24,7 +24,9 @@ function neighborsFor(graph, point) {
         { row: point.row, col: point.col + 1 },
         { row: point.row + 1, col: point.col },
         { row: point.row, col: point.col - 1 }
-    ].filter(next => next.row >= 0 && next.row < graph.height && next.col >= 0 && next.col < graph.width && !walls.has(key(next)));
+    ].filter(next => next.row >= 0 && next.row < graph.height
+        && next.col >= 0 && next.col < graph.width
+        && !walls.has(key(next)));
 }
 function scoreValues(open, gScore, fScore, target) {
     return open.map(value => {
