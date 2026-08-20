@@ -1,8 +1,9 @@
 import { zeroOneBfs, createZeroOneBfsInitialStep } from "./algorithms/zeroOneBfs.js";
 import { GraphController } from "./visualizer/graphController.js";
 import { GraphData, GridPoint } from "./visualizer/types.js";
-import { GraphVisualizer } from "./visualizer/graphVisualizer.js";
+import { GraphVisualizer, GridEditMode } from "./visualizer/graphVisualizer.js";
 import { createClusterGrid } from "./visualizer/gridGenerator.js";
+import { updateGrid } from "./visualizer/gridEditor.js";
 import { initCodeLoader } from "../ui/codeLoader.js";
 import { initLearnMore } from "../ui/navigation.js";
 
@@ -77,6 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const mapSelect = document.getElementById("mapSelect") as HTMLSelectElement;
     const randomBtn = document.getElementById("randomBtn") as HTMLButtonElement;
     const resetBtn = document.getElementById("resetBtn") as HTMLButtonElement;
+    const editModeSelect = document.getElementById("editModeSelect") as HTMLSelectElement;
     const playBtn = document.getElementById("playBtn") as HTMLButtonElement;
     const pauseBtn = document.getElementById("pauseBtn") as HTMLButtonElement;
     const stepBtn = document.getElementById("stepBtn") as HTMLButtonElement;
@@ -86,6 +88,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const controller = new GraphController(zeroOneBfs(graph), visualizer);
     controller.reset(zeroOneBfs(graph), createZeroOneBfsInitialStep(graph));
     controller.setSpeed(Number(speedRange.value));
+
+    visualizer.setGridEditHandler((point, mode) => {
+        controller.pause();
+        graph = updateGrid(graph, point, mode);
+        controller.reset(zeroOneBfs(graph), createZeroOneBfsInitialStep(graph));
+        mapSelect.value = "custom";
+    });
 
     function reset() {
         const selectedIndex = Number(mapSelect.value);
@@ -101,6 +110,9 @@ document.addEventListener("DOMContentLoaded", () => {
         controller.reset(zeroOneBfs(graph), createZeroOneBfsInitialStep(graph));
     });
     resetBtn.addEventListener("click", reset);
+    editModeSelect.addEventListener("change", () => {
+        visualizer.setEditMode(editModeSelect.value as GridEditMode);
+    });
     playBtn.addEventListener("click", () => controller.play());
     pauseBtn.addEventListener("click", () => controller.pause());
     stepBtn.addEventListener("click", () => controller.step());
