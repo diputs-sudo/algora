@@ -6,6 +6,9 @@ export class GraphVisualizer {
         this.stepCount = 0;
         this.editMode = "wall";
         this.onGridEdit = null;
+        this.onRender = null;
+        this.pointerDragging = false;
+        this.suppressClick = false;
         const element = document.getElementById(containerId);
         if (!element) {
             throw new Error("Grid visualizer container not found");
@@ -50,6 +53,9 @@ export class GraphVisualizer {
         this.container.appendChild(this.statusRoot);
         this.container.appendChild(this.gridShell);
         this.container.appendChild(this.workspaceRoot);
+        window.addEventListener("pointerup", () => {
+            this.pointerDragging = false;
+        });
         this.setStepCount(0);
         this.setVisitCount(0);
     }
@@ -63,13 +69,20 @@ export class GraphVisualizer {
         this.setVisitCount(step.visited.length);
         this.renderGrid(step);
         this.renderWorkspace(step.workspace);
+        this.onRender?.(step);
     }
     setEditMode(mode) {
         this.editMode = mode;
         this.gridRoot.dataset.editMode = mode;
     }
+    setWorkspaceMode(mode) {
+        this.container.dataset.workspaceMode = mode;
+    }
     setGridEditHandler(handler) {
         this.onGridEdit = handler;
+    }
+    setRenderHandler(handler) {
+        this.onRender = handler;
     }
     renderGrid(step) {
         this.gridRoot.innerHTML = "";
@@ -91,8 +104,11 @@ export class GraphVisualizer {
         }
         const wallKeys = new Set(step.graph.walls.map(key));
         const visitedKeys = new Set(step.visited);
+        const secondaryVisitedKeys = new Set(step.secondaryVisited ?? []);
         const stackKeys = new Set(step.stack);
+        const secondaryStackKeys = new Set(step.secondaryStack ?? []);
         const pathKeys = new Set(step.path ?? []);
+        const meetingKeys = new Set(step.meeting ?? []);
         const currentKey = step.current ? key(step.current) : "";
         const inspectedKey = step.inspected ? key(step.inspected) : "";
         const startKey = key(step.graph.start);
@@ -106,7 +122,24 @@ export class GraphVisualizer {
                 cell.setAttribute("role", "button");
                 cell.tabIndex = 0;
                 const edit = () => this.onGridEdit?.({ row, col }, this.editMode);
-                cell.addEventListener("click", edit);
+                cell.addEventListener("click", () => {
+                    if (this.suppressClick) {
+                        this.suppressClick = false;
+                        return;
+                    }
+                    edit();
+                });
+                cell.addEventListener("pointerdown", event => {
+                    if (event.button === 0) {
+                        this.pointerDragging = true;
+                        this.suppressClick = true;
+                        edit();
+                    }
+                });
+                cell.addEventListener("pointerenter", () => {
+                    if (this.pointerDragging)
+                        edit();
+                });
                 cell.addEventListener("keydown", event => {
                     if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
@@ -119,11 +152,20 @@ export class GraphVisualizer {
                 if (visitedKeys.has(pointKey)) {
                     cell.classList.add("is-visited");
                 }
+                if (secondaryVisitedKeys.has(pointKey)) {
+                    cell.classList.add("is-visited-secondary");
+                }
                 if (stackKeys.has(pointKey)) {
                     cell.classList.add("is-stacked");
                 }
+                if (secondaryStackKeys.has(pointKey)) {
+                    cell.classList.add("is-stacked-secondary");
+                }
                 if (pathKeys.has(pointKey)) {
                     cell.classList.add("is-path");
+                }
+                if (meetingKeys.has(pointKey)) {
+                    cell.classList.add("is-meeting");
                 }
                 if (pointKey === inspectedKey) {
                     cell.classList.add("is-inspected");
