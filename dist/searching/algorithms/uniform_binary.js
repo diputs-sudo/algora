@@ -1,21 +1,26 @@
 function createStepTable(length) {
+    if (length === 0)
+        return [];
+    let largest = 1;
+    while (largest <= Math.floor(length / 2))
+        largest *= 2;
     const steps = [];
-    let step = Math.ceil(length / 2);
-    while (step >= 1) {
+    for (let step = largest; step >= 1; step = Math.floor(step / 2)) {
         steps.push(step);
-        step = Math.floor(step / 2);
+        if (step === 1)
+            break;
     }
     return steps;
 }
-function createWorkspace(array, target, low, mid, high, steps, stepIndex, detail) {
+function createWorkspace(array, target, base, testIndex, steps, stepIndex, detail) {
     return {
         title: "Uniform Binary Search Workspace",
         detail,
         rows: [
             {
-                label: "Active Range",
-                values: low <= high ? array.slice(low, high + 1) : [],
-                activeIndices: mid >= low && mid <= high ? [mid - low] : []
+                label: "Candidate",
+                values: [`base ${base}`, `test ${testIndex}`],
+                activeIndices: [1]
             },
             {
                 label: "Step Table",
@@ -23,25 +28,24 @@ function createWorkspace(array, target, low, mid, high, steps, stepIndex, detail
                 activeIndices: stepIndex < steps.length ? [stepIndex] : []
             },
             {
-                label: "Pointers",
-                values: [`low ${low}`, `mid ${mid}`, `high ${high}`],
-                activeIndices: [1]
+                label: "Target",
+                values: [target]
             }
         ]
     };
 }
-function createUniformInsight(steps, stepIndex, low, mid, high, direction, note, comparison, decisionText) {
+function createInsight(steps, stepIndex, base, probeIndex, direction, note, comparison, decisionText) {
     const currentStepIndex = Math.min(stepIndex, Math.max(steps.length - 1, 0));
     return {
-        low,
-        mid,
-        high,
+        low: Math.max(base + 1, 0),
+        mid: probeIndex,
+        high: steps.length > 0 ? Math.max(base + steps[currentStepIndex], probeIndex) : probeIndex,
         currentStepIndex,
         currentStep: steps[currentStepIndex] ?? 0,
         nextStep: steps[stepIndex + 1],
         direction,
         comparison,
-        decisionText: decisionText ?? "Use the active table entry to choose the current probe.",
+        decisionText: decisionText ?? "Use the active offset to choose the next probe.",
         steps: steps.map((step, index) => ({
             step,
             status: index < stepIndex ? "used" : index === stepIndex ? "active" : "upcoming"
@@ -51,125 +55,137 @@ function createUniformInsight(steps, stepIndex, low, mid, high, direction, note,
 }
 export function createUniformBinarySearchInitialStep(array, target) {
     const steps = createStepTable(array.length);
-    const high = array.length - 1;
-    const mid = array.length > 0 ? Math.floor(high / 2) : undefined;
+    const firstProbe = steps.length > 0 ? steps[0] - 1 : undefined;
     return {
         type: "narrow",
         array,
         target,
         low: array.length > 0 ? 0 : undefined,
-        mid,
-        high: array.length > 0 ? high : undefined,
-        pointers: array.length > 0 && mid !== undefined ? [
-            { label: "low", index: 0 },
-            { label: "mid", index: mid },
-            { label: "high", index: high }
-        ] : [],
-        message: "Build a fixed step table, then search the sorted range using decreasing offsets.",
-        uniformBinary: array.length > 0 && mid !== undefined
-            ? createUniformInsight(steps, 0, 0, mid, high, "start", "Uniform Binary Search follows the table from left to right; each entry represents the next smaller movement scale.", undefined, "Start with the first table entry near the center of the full range.")
-            : undefined,
-        workspace: array.length > 0 && mid !== undefined
-            ? createWorkspace(array, target, 0, mid, high, steps, 0, "The first step starts near the center of the full range.")
-            : {
+        mid: firstProbe,
+        high: array.length > 0 ? array.length - 1 : undefined,
+        pointers: firstProbe === undefined ? [] : [{ label: "probe", index: firstProbe }],
+        message: "Build fixed offsets, then probe base plus each offset from largest to smallest.",
+        uniformBinary: firstProbe === undefined
+            ? undefined
+            : createInsight(steps, 0, -1, firstProbe, "start", "The first offset probes the largest power-of-two position.", `${array[firstProbe]} ? ${target}`, "Compare the first fixed-step probe with the target."),
+        workspace: firstProbe === undefined
+            ? {
                 title: "Uniform Binary Search Workspace",
                 detail: "There are no values to inspect.",
                 rows: [{ label: "Target", values: [target] }]
             }
+            : createWorkspace(array, target, -1, firstProbe, steps, 0, "The first fixed offset starts the search.")
     };
 }
 export function* uniformBinarySearch(array, target) {
     const steps = createStepTable(array.length);
-    let low = 0;
-    let high = array.length - 1;
-    let stepIndex = 0;
+    let base = -1;
     let probes = 0;
-    while (low <= high) {
-        const mid = Math.floor((low + high) / 2);
-        const value = array[mid];
+    if (steps.length === 0) {
+        yield {
+            type: "miss",
+            array,
+            target,
+            probes,
+            resultIndex: -1,
+            message: "The array is empty, so the target cannot be found.",
+            workspace: {
+                title: "Uniform Binary Search Workspace",
+                detail: "There are no offsets to apply.",
+                rows: [{ label: "Target", values: [target] }]
+            }
+        };
+        return;
+    }
+    for (let stepIndex = 0; stepIndex < steps.length; stepIndex++) {
+        const step = steps[stepIndex];
+        const testIndex = base + step;
+        const inside = testIndex < array.length;
+        if (!inside) {
+            yield {
+                type: "inspect",
+                array,
+                target,
+                low: Math.max(base + 1, 0),
+                high: array.length - 1,
+                pointers: [{ label: "base", index: Math.max(base, 0) }],
+                probes,
+                message: `Offset ${step} would leave the array, so skip it.`,
+                uniformBinary: createInsight(steps, stepIndex, base, testIndex, "left", "The current offset is too large for the remaining suffix.", `${testIndex} outside array`, `Skip offset ${step}.`),
+                workspace: createWorkspace(array, target, base, testIndex, steps, stepIndex, "The offset is outside the array.")
+            };
+            continue;
+        }
         probes += 1;
+        const value = array[testIndex];
         yield {
             type: "inspect",
             array,
             target,
-            low,
-            mid,
-            high,
-            pointers: [
-                { label: "low", index: low },
-                { label: "mid", index: mid },
-                { label: "high", index: high }
-            ],
+            low: Math.max(base + 1, 0),
+            mid: testIndex,
+            high: array.length - 1,
+            pointers: [{ label: "base", index: Math.max(base, 0) }, { label: "probe", index: testIndex }],
             probes,
-            message: `Use table step ${steps[Math.min(stepIndex, steps.length - 1)]} to inspect index ${mid}: compare ${value} with ${target}.`,
-            uniformBinary: createUniformInsight(steps, stepIndex, low, mid, high, "start", "The active table entry marks this round's movement scale before the next smaller step takes over.", `${value} ? ${target}`, `Compare the probe value at index ${mid} with the target.`),
-            workspace: createWorkspace(array, target, low, mid, high, steps, stepIndex, "Uniform Binary Search uses a precomputed sequence of decreasing step sizes.")
+            message: `Probe index ${testIndex} with fixed offset ${step}: compare ${value} with ${target}.`,
+            uniformBinary: createInsight(steps, stepIndex, base, testIndex, "start", "The current table entry supplies the probe offset.", `${value} ? ${target}`, "Compare the fixed-step probe with the target."),
+            workspace: createWorkspace(array, target, base, testIndex, steps, stepIndex, "Probe base plus the active fixed offset.")
         };
         if (value === target) {
             yield {
                 type: "found",
                 array,
                 target,
-                low,
-                mid,
-                high,
-                pointers: [{ label: "found", index: mid }],
+                low: testIndex,
+                mid: testIndex,
+                high: testIndex,
+                pointers: [{ label: "found", index: testIndex }],
                 probes,
-                resultIndex: mid,
-                message: `Target ${target} found at index ${mid}.`,
-                uniformBinary: createUniformInsight(steps, stepIndex, low, mid, high, "found", `The active probe matches ${target}, so the table search stops here.`, `${value} = ${target}`, `Return index ${mid}.`),
-                workspace: createWorkspace(array, target, low, mid, high, steps, stepIndex, `Found ${target} at index ${mid}.`)
+                resultIndex: testIndex,
+                message: `Target ${target} found at index ${testIndex}.`,
+                uniformBinary: createInsight(steps, stepIndex, base, testIndex, "found", "The fixed-step probe matches the target.", `${value} = ${target}`, `Return index ${testIndex}.`),
+                workspace: createWorkspace(array, target, base, testIndex, steps, stepIndex, "The target was found.")
             };
             return;
         }
-        stepIndex += 1;
         if (value < target) {
-            low = mid + 1;
+            base = testIndex;
         }
-        else {
-            high = mid - 1;
-        }
-        if (low <= high) {
-            const nextMid = Math.floor((low + high) / 2);
+        if (stepIndex + 1 < steps.length) {
+            const nextProbe = base + steps[stepIndex + 1];
             yield {
                 type: "narrow",
                 array,
                 target,
-                low,
-                mid: nextMid,
-                high,
-                pointers: [
-                    { label: "low", index: low },
-                    { label: "mid", index: nextMid },
-                    { label: "high", index: high }
-                ],
+                low: Math.max(base + 1, 0),
+                mid: nextProbe < array.length ? nextProbe : undefined,
+                high: array.length - 1,
+                pointers: nextProbe < array.length ? [{ label: "base", index: Math.max(base, 0) }, { label: "next", index: nextProbe }] : [{ label: "base", index: Math.max(base, 0) }],
                 probes,
                 message: value < target
-                    ? `${value} is smaller than ${target}, so move right using the next smaller step.`
-                    : `${value} is larger than ${target}, so move left using the next smaller step.`,
-                uniformBinary: createUniformInsight(steps, stepIndex, low, nextMid, high, value < target ? "right" : "left", "Advance to the next table entry and recenter inside the remaining half.", value < target ? `${value} < ${target}` : `${value} > ${target}`, value < target
-                    ? `Discard everything through index ${mid}; the next probe moves right.`
-                    : `Discard everything from index ${mid}; the next probe moves left.`),
-                workspace: createWorkspace(array, target, low, nextMid, high, steps, stepIndex, "Advance to the next entry in the step table for the smaller range.")
+                    ? `${value} is smaller than ${target}; keep index ${testIndex} as the base and use the next offset.`
+                    : `${value} is at least ${target}; keep the base and use the next offset.`,
+                uniformBinary: createInsight(steps, stepIndex + 1, base, nextProbe, value < target ? "right" : "left", "Advance to the next smaller fixed offset.", value < target ? `${value} < ${target}` : `${value} >= ${target}`, "Apply the next offset from the current base."),
+                workspace: createWorkspace(array, target, base, nextProbe, steps, stepIndex + 1, "The next smaller offset refines the candidate.")
             };
         }
     }
+    const candidate = base + 1;
     yield {
         type: "miss",
         array,
         target,
-        low,
-        high,
+        low: candidate,
+        high: array.length - 1,
         probes,
         resultIndex: -1,
         message: `Target ${target} is not in the array.`,
-        uniformBinary: createUniformInsight(steps, stepIndex, low, low, high, "miss", "The table is exhausted for the remaining bounds, and the active range is empty.", "empty range", `${target} is not present in the sorted array.`),
+        uniformBinary: createInsight(steps, steps.length, base, candidate, "miss", "All fixed offsets are exhausted without a match.", candidate < array.length ? `${array[candidate]} != ${target}` : "insertion point at end", "The target is not present."),
         workspace: {
             title: "Uniform Binary Search Workspace",
-            detail: "The active range is empty.",
+            detail: "The fixed-step search is complete.",
             rows: [
-                { label: "Step Table", values: steps },
-                { label: "Final Bounds", values: [`low ${low}`, `high ${high}`] },
+                { label: "Insertion Point", values: [candidate] },
                 { label: "Target", values: [target] }
             ]
         }
