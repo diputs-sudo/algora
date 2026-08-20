@@ -39,7 +39,7 @@ function sortCards(criteria) {
             return Number(a.dataset.memory) - Number(b.dataset.memory);
         }
         if (criteria === "difficulty") {
-            return Number(a.dataset.different) - Number(b.dataset.difficulty);
+            return Number(a.dataset.difficulty) - Number(b.dataset.difficulty);
         }
         return 0;
     });
