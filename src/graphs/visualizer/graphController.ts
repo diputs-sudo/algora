@@ -15,8 +15,8 @@ export class GraphController {
         this.visualizer.resetStepCount();
     }
 
-    public setSpeed(ms: number) {
-        this.speed = ms;
+    public setSpeed(speedValue: number) {
+        this.speed = Math.max(1, 1300 - speedValue);
 
         if (this.isRunning) {
             this.pause();
@@ -53,6 +53,11 @@ export class GraphController {
         this.stepCount = 0;
         this.visualizer.resetStepCount();
         this.visualizer.render(initialStep);
+    }
+
+    public replace(generator: Generator<GraphStep>) {
+        this.pause();
+        this.generator = generator;
     }
 
     private advance() {
