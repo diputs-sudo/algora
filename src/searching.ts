@@ -51,7 +51,7 @@ function sortCards(criteria: string) {
         }
 
         if (criteria === "difficulty") {
-            return Number(a.dataset.different) - Number(b.dataset.difficulty);
+            return Number(a.dataset.difficulty) - Number(b.dataset.difficulty);
         }
 
         return 0;
