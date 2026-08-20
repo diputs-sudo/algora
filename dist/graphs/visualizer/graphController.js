@@ -8,8 +8,8 @@ export class GraphController {
         this.visualizer = visualizer;
         this.visualizer.resetStepCount();
     }
-    setSpeed(ms) {
-        this.speed = ms;
+    setSpeed(speedValue) {
+        this.speed = Math.max(1, 1300 - speedValue);
         if (this.isRunning) {
             this.pause();
             this.play();
@@ -41,6 +41,10 @@ export class GraphController {
         this.stepCount = 0;
         this.visualizer.resetStepCount();
         this.visualizer.render(initialStep);
+    }
+    replace(generator) {
+        this.pause();
+        this.generator = generator;
     }
     advance() {
         const result = this.generator.next();
