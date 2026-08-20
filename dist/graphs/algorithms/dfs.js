@@ -168,7 +168,7 @@ export function* depthFirstSearch(graph) {
                     visited: Array.from(visited),
                     stack: stack.map(key),
                     order: [...order],
-                    message: `${label(neighbor)} is already visited or waiting on the stack, so keep it.`,
+                    message: `${label(neighbor)} is already visited or waiting on the stack, so skip it.`,
                     workspace: makeWorkspace(`${label(neighbor)} does not need to be added again.`, visited, stack, order, neighbor)
                 };
                 continue;
