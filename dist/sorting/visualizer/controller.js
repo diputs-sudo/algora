@@ -9,8 +9,12 @@ export class Controller {
         this.graph.resetStepCount();
         this.graph.resetMemoryUsage();
     }
-    setSpeed(ms) {
-        this.speed = ms;
+    setSpeed(speedValue) {
+        this.speed = Math.max(1, 1050 - speedValue);
+        if (this.isRunning) {
+            this.pause();
+            this.play();
+        }
     }
     play() {
         if (this.isRunning)
