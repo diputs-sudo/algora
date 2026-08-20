@@ -15,8 +15,13 @@ export class SearchController {
         this.visualizer.resetStepCount();
     }
 
-    public setSpeed(ms: number) {
-        this.speed = ms;
+    public setSpeed(speedValue: number) {
+        this.speed = Math.max(1, 1300 - speedValue);
+
+        if (this.isRunning) {
+            this.pause();
+            this.play();
+        }
     }
 
     public play() {
