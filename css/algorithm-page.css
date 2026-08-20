@@ -260,6 +260,11 @@ header p {
   background: rgba(14, 20, 32, 0.82);
 }
 
+.dstar-metrics {
+  margin-top: 0.1rem;
+}
+
+
 .algorithm-panel-feature .controls-panel input[type="text"],
 .algorithm-panel-feature .playback-controls button,
 .algorithm-panel-feature #generateBtn,
@@ -1039,30 +1044,46 @@ header p {
   box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.08);
 }
 
-.path-cell.is-visited {
+.path-cell.is-visited:not(.is-wall) {
   border-color: rgba(34, 197, 94, 0.3);
   background: rgba(34, 197, 94, 0.16);
 }
 
-.path-cell.is-stacked {
+.path-cell.is-stacked:not(.is-wall) {
   border-color: rgba(96, 165, 250, 0.46);
   background: rgba(59, 130, 246, 0.24);
 }
 
-.path-cell.is-inspected {
+.path-cell.is-visited-secondary:not(.is-wall) {
+  border-color: rgba(244, 114, 182, 0.32);
+  background: rgba(244, 114, 182, 0.12);
+}
+
+.path-cell.is-stacked-secondary:not(.is-wall) {
+  border-color: rgba(244, 114, 182, 0.58);
+  background: rgba(244, 114, 182, 0.2);
+}
+
+.path-cell.is-meeting:not(.is-wall) {
+  border-color: rgba(250, 204, 21, 0.86);
+  background: rgba(250, 204, 21, 0.3);
+  box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.2);
+}
+
+.path-cell.is-inspected:not(.is-wall) {
   border-color: rgba(250, 204, 21, 0.58);
   background: rgba(250, 204, 21, 0.18);
   color: #fef08a;
 }
 
-.path-cell.is-current {
+.path-cell.is-current:not(.is-wall) {
   border-color: rgba(250, 204, 21, 0.78);
   background: rgba(250, 204, 21, 0.28);
   color: #fef9c3;
   box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.12);
 }
 
-.path-cell.is-path {
+.path-cell.is-path:not(.is-wall) {
   border-color: rgba(45, 212, 191, 0.72);
   background: rgba(20, 184, 166, 0.28);
   color: #ccfbf1;
@@ -4235,4 +4256,5 @@ header p {
     padding-left: 0.65rem;
     font-size: 0.8rem;
   }
+
 }
