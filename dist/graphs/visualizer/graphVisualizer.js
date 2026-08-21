@@ -66,7 +66,7 @@ export class GraphVisualizer {
     }
     render(step) {
         this.statusRoot.textContent = step.message;
-        this.setVisitCount(step.visited.length);
+        this.setVisitCount(step.visited.length, step.counterLabel);
         this.renderGrid(step);
         this.renderWorkspace(step.workspace);
         this.onRender?.(step);
@@ -235,7 +235,7 @@ export class GraphVisualizer {
     resetStepCount() {
         this.setStepCount(0);
     }
-    setVisitCount(count) {
-        this.visitCounter.textContent = `Visited ${count}`;
+    setVisitCount(count, label = "Visited") {
+        this.visitCounter.textContent = `${label} ${count}`;
     }
 }
