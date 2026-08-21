@@ -108,7 +108,7 @@ export class GraphVisualizer {
 
     public render(step: GraphStep) {
         this.statusRoot.textContent = step.message;
-        this.setVisitCount(step.visited.length);
+        this.setVisitCount(step.visited.length, step.counterLabel);
         this.renderGrid(step);
         this.renderWorkspace(step.workspace);
         this.onRender?.(step);
@@ -311,7 +311,7 @@ export class GraphVisualizer {
         this.setStepCount(0);
     }
 
-    private setVisitCount(count: number) {
-        this.visitCounter.textContent = `Visited ${count}`;
+    private setVisitCount(count: number, label = "Visited") {
+        this.visitCounter.textContent = `${label} ${count}`;
     }
 }
