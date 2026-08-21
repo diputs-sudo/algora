@@ -43,6 +43,7 @@ export interface GraphStep {
     meeting?: string[];
     edgeWeight?: number;
     distances?: Record<string, number>;
+    counterLabel?: string;
     message: string;
     workspace?: GraphWorkspaceState;
 }
